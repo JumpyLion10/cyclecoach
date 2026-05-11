@@ -4,599 +4,716 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="CycleCoach">
-<meta name="theme-color" content="#00e87a">
-<title>CycleCoach AI</title>
+<meta name="theme-color" content="#0a0a0a">
+<title>CycleCoach</title>
 <link rel="manifest" href="/manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0a0e0c; --surface: #111614; --surface2: #181e1b;
-    --border: #1e2822; --border2: #253028;
-    --green: #00e87a; --green-dim: #00b85e; --green-muted: #0d3321;
-    --amber: #f5a623; --amber-muted: #2e1f06;
-    --red: #ff4d4d; --red-muted: #2a0a0a;
-    --blue: #4d9fff;
-    --text: #e8f0eb; --text2: #7a9082; --text3: #3d5446;
-    --mono: 'DM Mono', monospace;
-    --display: 'Syne', sans-serif;
-    --body: 'DM Sans', sans-serif;
-    --safe-top: env(safe-area-inset-top, 0px);
-    --safe-bottom: env(safe-area-inset-bottom, 0px);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--body); overflow: hidden; }
+:root {
+  --bg:#0a0a0a; --s1:#111111; --s2:#181818; --s3:#222222;
+  --b1:#2a2a2a; --b2:#333333;
+  --t1:#f0f0f0; --t2:#888888; --t3:#444444;
+  --accent:#c8ff00; --acc-dim:#8aaf00; --acc-bg:#161f00;
+  --red:#ff4444; --red-bg:#1f0a0a;
+  --amber:#ffaa00; --amb-bg:#1f1500;
+  --blue:#4488ff;
+  --safe-t:env(safe-area-inset-top,0px);
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --mono:'Geist Mono',monospace;
+  --serif:'Instrument Serif',serif;
+  --sans:'Geist',sans-serif;
+  --r:14px; --r-sm:8px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);color:var(--t1);font-family:var(--sans);font-size:15px;overflow:hidden;-webkit-font-smoothing:antialiased;}
 
-  .app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+/* ── LAYOUT ── */
+.app{display:flex;flex-direction:column;height:100vh;height:100dvh;}
+.header{padding:calc(var(--safe-t) + 16px) 20px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--bg);border-bottom:1px solid var(--b1);}
+.header-title{font-family:var(--serif);font-size:22px;font-style:italic;color:var(--t1);}
+.header-pill{background:var(--acc-bg);border:1px solid var(--acc-dim);border-radius:20px;padding:5px 12px;font-family:var(--mono);font-size:11px;color:var(--accent);}
+.pages{flex:1;overflow:hidden;position:relative;}
+.page{position:absolute;inset:0;overflow-y:auto;display:none;-webkit-overflow-scrolling:touch;}
+.page::-webkit-scrollbar{display:none;}
+.page.active{display:block;}
+#page-coach.active{display:flex;flex-direction:column;}
 
-  /* ── HEADER ── */
-  .header {
-    padding: calc(var(--safe-top) + 14px) 20px 14px;
-    background: var(--surface); border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
-  }
-  .header-left { display: flex; align-items: center; gap: 10px; }
-  .logo-icon { width: 30px; height: 30px; border-radius: 8px; background: var(--green); display: flex; align-items: center; justify-content: center; }
-  .logo-icon svg { width: 16px; height: 16px; stroke: #000; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
-  .logo-text { font-family: var(--display); font-size: 16px; font-weight: 700; color: var(--text); }
-  .ftp-pill { background: var(--green-muted); border: 1px solid #1a4a30; border-radius: 20px; padding: 4px 12px; display: flex; align-items: center; gap: 5px; }
-  .ftp-pill .ftp-num { font-family: var(--mono); font-size: 13px; color: var(--green); font-weight: 500; }
-  .ftp-pill .ftp-lbl { font-size: 10px; color: var(--green-dim); }
+/* ── NAV ── */
+.nav{display:flex;background:var(--s1);border-top:1px solid var(--b1);padding-bottom:var(--safe-b);flex-shrink:0;}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 0 10px;border:none;background:none;color:var(--t3);cursor:pointer;font-family:var(--sans);transition:color 0.2s;position:relative;}
+.nav-btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transition:transform 0.2s;}
+.nav-btn span{font-size:10px;font-family:var(--mono);letter-spacing:0.06em;}
+.nav-btn.active{color:var(--accent);}
+.nav-btn.active svg{transform:translateY(-1px);}
+.n-ind{position:absolute;top:0;left:50%;transform:translateX(-50%);width:20px;height:2px;background:var(--accent);border-radius:0 0 2px 2px;opacity:0;transition:opacity 0.2s;}
+.nav-btn.active .n-ind{opacity:1;}
 
-  /* ── PAGES ── */
-  .pages { flex: 1; overflow: hidden; position: relative; }
-  .page { position: absolute; inset: 0; overflow-y: auto; padding: 16px; display: none; -webkit-overflow-scrolling: touch; }
-  .page.active { display: block; }
-  .page::-webkit-scrollbar { display: none; }
+/* ── SHARED ── */
+.label{font-family:var(--mono);font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:8px;}
+.card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:16px;margin:0 20px 10px;}
+.s-head{padding:16px 20px 8px;display:flex;align-items:center;justify-content:space-between;}
+.s-head h2{font-size:11px;font-family:var(--mono);color:var(--t3);text-transform:uppercase;letter-spacing:0.12em;}
+.chip{display:inline-flex;align-items:center;padding:4px 10px;border-radius:20px;font-family:var(--mono);font-size:10px;}
+.chip-g{background:var(--acc-bg);color:var(--accent);border:1px solid #2d3f00;}
+.chip-r{background:var(--red-bg);color:var(--red);border:1px solid #3f1010;}
+.chip-a{background:var(--amb-bg);color:var(--amber);border:1px solid #3f2800;}
 
-  /* ── BOTTOM NAV ── */
-  .bottom-nav { display: flex; background: var(--surface); border-top: 1px solid var(--border); padding-bottom: var(--safe-bottom); flex-shrink: 0; }
-  .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 0; border: none; background: none; color: var(--text3); cursor: pointer; font-family: var(--body); transition: color 0.15s; }
-  .nav-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-  .nav-btn span { font-size: 10px; }
-  .nav-btn.active { color: var(--green); }
+/* ── CHAT ── */
+.chat-scroll{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:14px;}
+.chat-scroll::-webkit-scrollbar{display:none;}
+.msg{display:flex;gap:10px;animation:fu 0.22s ease;}
+.msg.user{flex-direction:row-reverse;}
+@keyframes fu{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.av{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;font-weight:500;margin-top:2px;}
+.av.ai{background:var(--acc-bg);color:var(--accent);border:1px solid #2d3f00;}
+.av.me{background:var(--s3);color:var(--t2);border:1px solid var(--b2);}
+.bubble{max-width:78%;padding:11px 14px;font-size:14px;line-height:1.65;}
+.bubble.ai{background:var(--s1);border:1px solid var(--b1);border-radius:14px 14px 14px 3px;color:var(--t1);}
+.bubble.user{background:var(--acc-bg);border:1px solid #2d3f00;border-radius:14px 14px 3px 14px;color:#d4ff66;}
+.bubble strong{color:var(--accent);font-weight:500;}
+.bubble ul{margin:8px 0 4px 16px;}
+.bubble li{margin-bottom:4px;font-size:13px;color:var(--t2);}
+.qrs{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.qr{padding:6px 12px;border:1px solid var(--b2);border-radius:20px;font-size:12px;color:var(--t2);font-family:var(--mono);cursor:pointer;background:var(--s2);transition:all 0.15s;}
+.qr:active{background:var(--acc-bg);color:var(--accent);border-color:var(--acc-dim);}
+.t-bub{display:flex;align-items:center;gap:5px;padding:10px 12px;}
+.t-bub span{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:blink 1.4s infinite;opacity:.3;}
+.t-bub span:nth-child(2){animation-delay:.2s;}
+.t-bub span:nth-child(3){animation-delay:.4s;}
+@keyframes blink{0%,80%,100%{opacity:.3}40%{opacity:1}}
+.chat-bar{padding:10px 20px;padding-bottom:calc(10px + var(--safe-b));background:var(--s1);border-top:1px solid var(--b1);display:flex;gap:10px;align-items:flex-end;flex-shrink:0;}
+.chat-input{flex:1;background:var(--s2);border:1px solid var(--b1);border-radius:20px;padding:11px 16px;font-size:14px;color:var(--t1);font-family:var(--sans);outline:none;resize:none;max-height:100px;line-height:1.4;transition:border-color 0.2s;}
+.chat-input:focus{border-color:var(--b2);}
+.chat-input::placeholder{color:var(--t3);}
+.send{width:42px;height:42px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform 0.15s;}
+.send:active{transform:scale(0.92);}
+.send svg{width:17px;height:17px;stroke:#000;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
 
-  /* ── SHARED COMPONENTS ── */
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; }
-  .card-title { font-size: 11px; font-family: var(--mono); color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; }
-  .section-title { font-size: 11px; font-family: var(--mono); color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; margin: 16px 0 8px; }
+/* ── DASHBOARD ── */
+#page-dash{padding-bottom:24px;}
+.ftp-hero{margin:16px 20px 10px;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:20px;position:relative;overflow:hidden;}
+.ftp-hero::before{content:'';position:absolute;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,#1a2200 0%,transparent 70%);pointer-events:none;}
+.ftp-big{font-family:var(--serif);font-size:72px;line-height:1;color:var(--accent);font-style:italic;}
+.ftp-unit{font-family:var(--mono);font-size:12px;color:var(--acc-dim);margin-top:2px;}
+.ftp-side{text-align:right;}
+.ftp-wpkg{font-family:var(--serif);font-size:22px;color:var(--t1);font-style:italic;}
+.ftp-wlbl{font-family:var(--mono);font-size:10px;color:var(--t3);margin-top:2px;}
+.ftp-row{display:flex;align-items:flex-end;justify-content:space-between;}
+.edit-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border:1px solid var(--b2);border-radius:20px;background:none;font-size:11px;font-family:var(--mono);color:var(--t2);cursor:pointer;margin-top:14px;transition:all 0.15s;}
+.edit-btn:active{border-color:var(--accent);color:var(--accent);}
+.edit-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;}
 
-  .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
-  .stat { background: var(--surface2); border-radius: 10px; padding: 12px 14px; }
-  .stat .lbl { font-size: 10px; font-family: var(--mono); color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
-  .stat .val { font-family: var(--display); font-size: 24px; font-weight: 700; color: var(--text); line-height: 1; }
-  .stat .sub { font-size: 10px; color: var(--text3); margin-top: 3px; }
-  .stat.green .val { color: var(--green); }
+.metrics-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:0 20px 10px;}
+.mc{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r-sm);padding:12px 10px;text-align:center;}
+.mc .ml{font-family:var(--mono);font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:5px;}
+.mc .mv{font-family:var(--serif);font-size:26px;font-style:italic;line-height:1;}
+.mc .ms{font-size:10px;color:var(--t3);font-family:var(--mono);margin-top:3px;}
+.mc.ctl .mv{color:var(--blue);}
+.mc.atl .mv{color:var(--amber);}
+.mc.tsb .mv{color:var(--accent);}
 
-  /* Ride list items */
-  .ride-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
-  .ride-item:last-child { border-bottom: none; }
-  .ride-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .ride-dot.done { background: var(--green); box-shadow: 0 0 5px var(--green); }
-  .ride-dot.missed { background: var(--red); }
-  .ride-info { flex: 1; min-width: 0; }
-  .ride-name { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .ride-meta { font-size: 11px; color: var(--text3); font-family: var(--mono); margin-top: 2px; }
-  .ride-power { text-align: right; flex-shrink: 0; }
-  .ride-power .pw { font-family: var(--mono); font-size: 14px; color: var(--text); }
-  .ride-power .pw-lbl { font-size: 9px; color: var(--text3); text-transform: uppercase; }
+.week-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 20px 10px;}
+.wc{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r-sm);padding:12px 14px;}
+.wc .wl{font-family:var(--mono);font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;}
+.wc .wv{font-size:20px;font-weight:500;color:var(--t1);}
+.wc .ws{font-size:10px;color:var(--t3);font-family:var(--mono);margin-top:2px;}
 
-  /* Badges */
-  .badge { font-size: 10px; font-family: var(--mono); padding: 3px 8px; border-radius: 20px; display: inline-block; flex-shrink: 0; }
-  .badge.done { background: var(--green-muted); color: var(--green); }
-  .badge.missed { background: var(--red-muted); color: var(--red); }
+.bar-chart{display:flex;align-items:flex-end;gap:4px;height:52px;}
+.bc{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end;}
+.b{width:100%;border-radius:3px 3px 0 0;background:var(--s3);min-height:3px;}
+.b.today{background:var(--accent);}
+.bd{font-family:var(--mono);font-size:8px;color:var(--t3);}
 
-  /* Missed session banner */
-  .missed-banner { background: var(--red-muted); border: 1px solid #3a1010; border-radius: 12px; padding: 14px; margin-bottom: 10px; }
-  .missed-title { font-size: 13px; font-weight: 500; color: var(--red); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
-  .missed-title svg { width: 14px; height: 14px; stroke: var(--red); fill: none; stroke-width: 2; flex-shrink: 0; }
-  .missed-banner p { font-size: 12px; color: var(--text2); line-height: 1.6; margin-bottom: 10px; }
-  .reason-btns { display: flex; flex-wrap: wrap; gap: 6px; }
-  .reason-btn { padding: 6px 12px; border: 1px solid #3a1010; border-radius: 20px; font-size: 11px; font-family: var(--mono); color: var(--red); background: transparent; cursor: pointer; }
+.goal-card{margin:0 20px 10px;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:16px;}
+.goal-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;}
+.goal-name{font-size:14px;font-weight:500;color:var(--t1);}
+.goal-date{font-family:var(--mono);font-size:10px;color:var(--t3);margin-top:3px;}
+.prog-bg{height:3px;background:var(--s3);border-radius:2px;overflow:hidden;}
+.prog-fill{height:100%;background:var(--accent);border-radius:2px;transition:width 0.6s ease;}
+.prog-meta{display:flex;justify-content:space-between;margin-top:6px;font-family:var(--mono);font-size:10px;color:var(--t3);}
 
-  /* Sync banner */
-  .sync-banner { background: var(--green-muted); border: 1px solid #1a4a30; border-radius: 10px; padding: 10px 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--green); }
-  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green); flex-shrink: 0; animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
+/* ── MODAL ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:flex;align-items:flex-end;z-index:100;opacity:0;pointer-events:none;transition:opacity 0.25s;}
+.overlay.open{opacity:1;pointer-events:all;}
+.modal{width:100%;background:var(--s1);border-radius:20px 20px 0 0;padding:24px 20px;padding-bottom:calc(24px + var(--safe-b));border-top:1px solid var(--b1);transform:translateY(20px);transition:transform 0.25s;}
+.overlay.open .modal{transform:none;}
+.modal h2{font-family:var(--serif);font-size:20px;font-style:italic;color:var(--t1);margin-bottom:20px;}
+.field{margin-bottom:16px;}
+.field label{font-family:var(--mono);font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:0.1em;display:block;margin-bottom:8px;}
+.field input{width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r-sm);padding:12px 14px;font-size:15px;color:var(--t1);font-family:var(--sans);outline:none;transition:border-color 0.2s;}
+.field input:focus{border-color:var(--accent);}
+.m-btn{width:100%;padding:14px;border-radius:var(--r-sm);background:var(--accent);border:none;font-size:15px;font-family:var(--sans);font-weight:500;color:#000;cursor:pointer;}
+.m-btn:active{opacity:0.85;}
 
-  /* Training plan items */
-  .plan-item { display: flex; gap: 10px; margin-bottom: 6px; align-items: flex-start; }
-  .plan-day-lbl { font-family: var(--mono); font-size: 10px; color: var(--text3); width: 26px; padding-top: 11px; flex-shrink: 0; }
-  .plan-workout { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; }
-  .plan-color { width: 3px; border-radius: 2px; align-self: stretch; flex-shrink: 0; min-height: 32px; }
-  .plan-color.z2   { background: var(--blue); }
-  .plan-color.ss   { background: var(--amber); }
-  .plan-color.vo2  { background: var(--red); }
-  .plan-color.rest { background: var(--border2); }
-  .plan-name { font-size: 13px; font-weight: 500; color: var(--text); }
-  .plan-desc { font-size: 11px; color: var(--text3); font-family: var(--mono); margin-top: 2px; }
-  .plan-tss { font-family: var(--mono); font-size: 11px; color: var(--text2); margin-left: auto; flex-shrink: 0; text-align: right; }
+/* ── CALENDAR ── */
+#page-cal{padding-bottom:24px;}
+.month-nav{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 10px;}
+.month-name{font-family:var(--serif);font-size:22px;font-style:italic;color:var(--t1);}
+.m-btns{display:flex;gap:8px;}
+.m-btn-nav{width:32px;height:32px;border-radius:50%;background:var(--s2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.m-btn-nav svg{width:14px;height:14px;stroke:var(--t2);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
 
-  /* Zone bars */
-  .zone-row { display: flex; gap: 5px; align-items: flex-end; height: 64px; margin: 10px 0 6px; }
-  .zone-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; }
-  .zone-bar { width: 100%; border-radius: 3px 3px 0 0; }
-  .zone-lbl { font-family: var(--mono); font-size: 9px; color: var(--text3); }
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);margin:0 20px;border:1px solid var(--b1);border-radius:var(--r);overflow:hidden;}
+.dow{background:var(--s2);text-align:center;font-family:var(--mono);font-size:9px;color:var(--t3);padding:8px 0;letter-spacing:0.06em;}
+.cd{min-height:52px;border-top:1px solid var(--b1);border-right:1px solid var(--b1);padding:6px 5px;cursor:pointer;transition:background 0.15s;background:var(--s1);}
+.cd:nth-child(7n){border-right:none;}
+.cd:hover{background:var(--s2);}
+.cd.empty{background:var(--bg);cursor:default;}
+.cd.today{background:var(--acc-bg);}
+.cd.today .dn{color:var(--accent);}
+.dn{font-family:var(--mono);font-size:11px;color:var(--t2);margin-bottom:3px;}
+.dot{width:5px;height:5px;border-radius:50%;margin:1px auto 0;}
+.dot.ride{background:var(--accent);}
+.dot.missed{background:var(--red);}
+.dot.planned{background:var(--blue);}
+.cal-tss{font-family:var(--mono);font-size:8px;color:var(--t3);text-align:center;margin-top:2px;}
 
-  /* Chat */
-  .chat-wrap { display: flex; flex-direction: column; position: absolute; inset: 0; }
-  .chat-messages { flex: 1; overflow-y: auto; padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; -webkit-overflow-scrolling: touch; }
-  .chat-messages::-webkit-scrollbar { display: none; }
-  .msg { display: flex; gap: 8px; }
-  .msg.user { flex-direction: row-reverse; }
-  .av { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; font-family: var(--mono); }
-  .av.ai { background: var(--green-muted); color: var(--green); border: 1px solid #1a4a30; }
-  .av.me { background: var(--surface2); color: var(--text2); border: 1px solid var(--border2); }
-  .bubble { max-width: 82%; padding: 9px 13px; border-radius: 14px; font-size: 13px; line-height: 1.65; }
-  .bubble.ai { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-top-left-radius: 4px; }
-  .bubble.user { background: var(--green-muted); border: 1px solid #1a4a30; color: #b0f0ce; border-top-right-radius: 4px; }
-  .bubble strong { color: var(--green); font-weight: 500; }
-  .quick-replies { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
-  .qr { padding: 5px 11px; border: 1px solid var(--border2); border-radius: 20px; font-size: 11px; color: var(--text2); font-family: var(--mono); cursor: pointer; background: var(--surface2); }
-  .chat-input-bar { padding: 10px 12px; padding-bottom: calc(10px + var(--safe-bottom)); border-top: 1px solid var(--border); background: var(--surface); display: flex; gap: 8px; flex-shrink: 0; }
-  .chat-input { flex: 1; background: var(--surface2); border: 1px solid var(--border2); border-radius: 20px; padding: 10px 16px; font-size: 14px; color: var(--text); font-family: var(--body); outline: none; }
-  .chat-input::placeholder { color: var(--text3); }
-  .send-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--green); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .send-btn svg { width: 16px; height: 16px; stroke: #000; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
-  .typing { display: flex; align-items: center; gap: 4px; padding: 2px 0; }
-  .typing span { width: 5px; height: 5px; border-radius: 50%; background: var(--green); animation: bounce 1.2s infinite; }
-  .typing span:nth-child(2) { animation-delay: 0.2s; }
-  .typing span:nth-child(3) { animation-delay: 0.4s; }
-  @keyframes bounce { 0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-4px);opacity:1} }
+.detail-wrap{margin:12px 20px 0;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);overflow:hidden;}
+.detail-hd{padding:14px 16px;border-bottom:1px solid var(--b1);display:flex;align-items:flex-start;justify-content:space-between;}
+.detail-name{font-size:16px;font-weight:500;color:var(--t1);}
+.detail-date{font-family:var(--mono);font-size:11px;color:var(--t3);margin-top:3px;}
+.close-btn{width:28px;height:28px;border-radius:50%;background:var(--s2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+.close-btn svg{width:13px;height:13px;stroke:var(--t2);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.map-box{height:140px;background:var(--s2);position:relative;overflow:hidden;}
+.map-box svg{position:absolute;inset:0;width:100%;height:100%;}
+.map-tag{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.7);border-radius:6px;padding:4px 8px;font-family:var(--mono);font-size:10px;color:var(--t2);}
+.d-stats{display:grid;grid-template-columns:repeat(3,1fr);}
+.ds{padding:12px 8px;border-right:1px solid var(--b1);border-top:1px solid var(--b1);text-align:center;}
+.ds:nth-child(3n){border-right:none;}
+.ds .dv{font-family:var(--mono);font-size:14px;color:var(--t1);font-weight:500;}
+.ds .dl{font-family:var(--mono);font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:0.06em;margin-top:3px;}
 
-  /* Loading */
-  .loading-state { text-align: center; padding: 50px 20px; color: var(--text3); font-size: 13px; }
-  .spinner { width: 20px; height: 20px; border: 2px solid var(--border2); border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+.miss-box{margin:10px 20px 0;background:var(--red-bg);border:1px solid #3f1010;border-radius:var(--r);padding:14px 16px;}
+.miss-box h3{font-size:14px;color:var(--red);margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.miss-box h3 svg{width:14px;height:14px;stroke:var(--red);fill:none;stroke-width:2;flex-shrink:0;}
+.miss-box p{font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:10px;}
+.r-row{display:flex;flex-wrap:wrap;gap:6px;}
+.r-btn{padding:6px 12px;border:1px solid #3f1010;border-radius:20px;font-size:11px;font-family:var(--mono);color:var(--red);background:transparent;cursor:pointer;}
+.r-btn:active{background:#2a0a0a;}
+
+.spinner{width:18px;height:18px;border:2px solid var(--b2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.center{display:flex;align-items:center;justify-content:center;padding:60px;}
 </style>
 </head>
 <body>
 <div class="app">
 
-  <!-- HEADER -->
-  <div class="header">
-    <div class="header-left">
-      <div class="logo-icon">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
-      </div>
-      <span class="logo-text">CycleCoach</span>
-    </div>
-    <div class="ftp-pill">
-      <span class="ftp-num" id="header-ftp">—</span>
-      <span class="ftp-lbl">W FTP</span>
-    </div>
-  </div>
+<!-- HEADER -->
+<div class="header">
+  <div class="header-title">CycleCoach</div>
+  <div class="header-pill" id="h-ftp">— W</div>
+</div>
 
-  <!-- PAGES -->
-  <div class="pages">
+<!-- PAGES -->
+<div class="pages">
 
-    <!-- Dashboard -->
-    <div class="page active" id="page-home">
-      <div id="home-content"><div class="loading-state"><div class="spinner"></div>Loading your data...</div></div>
-    </div>
-
-    <!-- Plan -->
-    <div class="page" id="page-plan">
-      <div id="plan-content"><div class="loading-state"><div class="spinner"></div>Building your plan...</div></div>
-    </div>
-
-    <!-- Rides -->
-    <div class="page" id="page-rides">
-      <div id="rides-content"><div class="loading-state"><div class="spinner"></div>Loading ride history...</div></div>
-    </div>
-
-    <!-- Coach Chat -->
-    <div class="page" id="page-coach" style="padding:0;">
-      <div class="chat-wrap">
-        <div class="chat-messages" id="chat-messages">
-          <div class="msg">
-            <div class="av ai">AI</div>
-            <div>
-              <div class="bubble ai">
-                Hey! I'm your AI cycling coach. I can see all your Garmin rides and I'll help you push your FTP higher.<br><br>Once your Garmin is connected, I'll automatically analyse every ride when it syncs — and flag anything that needs attention.
-              </div>
-              <div class="quick-replies">
-                <div class="qr" onclick="sendQuick('How do I improve my FTP as fast as possible?')">Improve FTP fast</div>
-                <div class="qr" onclick="sendQuick('Explain sweet spot training and why it works')">Sweet spot training</div>
-                <div class="qr" onclick="sendQuick('How much weekly TSS should I be targeting?')">Weekly TSS target</div>
-              </div>
-            </div>
+  <!-- COACH -->
+  <div class="page active" id="page-coach">
+    <div class="chat-scroll" id="chat-scroll">
+      <div class="msg">
+        <div class="av ai">AI</div>
+        <div>
+          <div class="bubble ai">
+            Hey! I'm your AI cycling coach — I'm focused on pushing your FTP higher.<br><br>
+            Talk to me exactly like you would a real coach. I can see all your rides, build and adjust training plans around your schedule, and adapt if you miss a session or feel rough. Try one of these:
+          </div>
+          <div class="qrs">
+            <div class="qr" onclick="sq('Analyse my last ride')">Analyse my last ride</div>
+            <div class="qr" onclick="sq('Build me a training plan for this week — I have about 1.5 hours free each weekday and more on weekends')">Build me a plan</div>
+            <div class="qr" onclick="sq('I missed my workout today')">I missed a workout</div>
+            <div class="qr" onclick="sq('I only have 30 minutes tomorrow morning, can you adjust?')">Short on time tomorrow</div>
+            <div class="qr" onclick="sq('I want to do a group ride on Saturday, can you fit it in?')">Group ride Saturday</div>
           </div>
         </div>
-        <div class="chat-input-bar">
-          <input class="chat-input" id="chat-input" type="text" placeholder="Ask your coach..." onkeydown="if(event.key==='Enter')sendMessage()">
-          <button class="send-btn" onclick="sendMessage()">
-            <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-          </button>
-        </div>
       </div>
     </div>
-
+    <div class="chat-bar">
+      <textarea class="chat-input" id="chat-input" rows="1" placeholder="Message your coach…" onkeydown="ck(event)" oninput="ar(this)"></textarea>
+      <button class="send" onclick="send()">
+        <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
   </div>
 
-  <!-- BOTTOM NAV -->
-  <nav class="bottom-nav">
-    <button class="nav-btn active" onclick="switchPage('home',this)">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-      <span>Dashboard</span>
-    </button>
-    <button class="nav-btn" onclick="switchPage('plan',this)">
-      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-      <span>Plan</span>
-    </button>
-    <button class="nav-btn" onclick="switchPage('rides',this)">
-      <svg viewBox="0 0 24 24"><path d="M12 20V10M6 20V16M18 20V4"/></svg>
-      <span>Rides</span>
-    </button>
-    <button class="nav-btn" onclick="switchPage('coach',this)">
-      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-      <span>Coach</span>
-    </button>
-  </nav>
+  <!-- DASHBOARD -->
+  <div class="page" id="page-dash">
+    <div class="ftp-hero">
+      <div class="label">Current FTP</div>
+      <div class="ftp-row">
+        <div>
+          <div class="ftp-big" id="d-ftp">248</div>
+          <div class="ftp-unit">watts</div>
+        </div>
+        <div class="ftp-side">
+          <div class="ftp-wpkg" id="d-wpkg">3.54</div>
+          <div class="ftp-wlbl">w / kg</div>
+        </div>
+      </div>
+      <button class="edit-btn" onclick="openEdit()">
+        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Edit FTP &amp; weight
+      </button>
+    </div>
+
+    <div class="s-head"><h2>Fitness metrics</h2><span style="font-size:10px;color:var(--t3);font-family:var(--mono)">CTL − ATL = Form</span></div>
+    <div class="metrics-grid">
+      <div class="mc ctl"><div class="ml">Fitness</div><div class="mv" id="d-ctl">68</div><div class="ms">CTL</div></div>
+      <div class="mc atl"><div class="ml">Fatigue</div><div class="mv" id="d-atl">74</div><div class="ms">ATL</div></div>
+      <div class="mc tsb"><div class="ml">Form</div><div class="mv" id="d-tsb">−6</div><div class="ms">TSB</div></div>
+    </div>
+
+    <div class="s-head"><h2>This week</h2></div>
+    <div class="week-grid">
+      <div class="wc"><div class="wl">Distance</div><div class="wv" id="d-km">—</div><div class="ws">km this week</div></div>
+      <div class="wc"><div class="wl">Moving time</div><div class="wv" id="d-time">—</div><div class="ws">across sessions</div></div>
+      <div class="wc"><div class="wl">Elevation</div><div class="wv" id="d-elev">—</div><div class="ws">metres climbed</div></div>
+      <div class="wc"><div class="wl">Weekly TSS</div><div class="wv" id="d-tss">—</div><div class="ws">target ~380</div></div>
+    </div>
+
+    <div class="card">
+      <div class="label">TSS per day — this week</div>
+      <div class="bar-chart" id="tss-chart"></div>
+    </div>
+
+    <div class="s-head"><h2>Goal</h2></div>
+    <div class="goal-card">
+      <div class="goal-hd">
+        <div>
+          <div class="goal-name" id="g-name">—</div>
+          <div class="goal-date" id="g-date">Set a goal to get started</div>
+        </div>
+        <div class="chip chip-g" id="g-status">—</div>
+      </div>
+      <div class="prog-bg"><div class="prog-fill" id="g-prog" style="width:0%"></div></div>
+      <div class="prog-meta"><span id="g-week">—</span><span id="g-target">—</span></div>
+    </div>
+
+    <div style="height:8px"></div>
+  </div>
+
+  <!-- CALENDAR -->
+  <div class="page" id="page-cal">
+    <div class="month-nav">
+      <div class="month-name" id="cal-month">—</div>
+      <div class="m-btns">
+        <button class="m-btn-nav" onclick="chMonth(-1)"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <button class="m-btn-nav" onclick="chMonth(1)"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+      </div>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div id="cal-detail"></div>
+    <div style="height:16px"></div>
+  </div>
 
 </div>
 
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-btn active" onclick="go('coach',this)">
+    <div class="n-ind"></div>
+    <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <span>Coach</span>
+  </button>
+  <button class="nav-btn" onclick="go('dash',this)">
+    <div class="n-ind"></div>
+    <svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+    <span>Dashboard</span>
+  </button>
+  <button class="nav-btn" onclick="go('cal',this)">
+    <div class="n-ind"></div>
+    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+    <span>Calendar</span>
+  </button>
+</nav>
+
+<!-- EDIT MODAL -->
+<div class="overlay" id="overlay" onclick="maybeClose(event)">
+  <div class="modal">
+    <h2>Update your stats</h2>
+    <div class="field"><label>FTP (watts)</label><input type="number" id="e-ftp" placeholder="248"></div>
+    <div class="field"><label>Body weight (kg)</label><input type="number" id="e-weight" placeholder="70" step="0.1"></div>
+    <div class="field"><label>Goal event name</label><input type="text" id="e-goal" placeholder="Gran Fondo Blue Mountains"></div>
+    <div class="field"><label>Goal date</label><input type="date" id="e-date"></div>
+    <button class="m-btn" onclick="saveEdit()">Save changes</button>
+  </div>
+</div>
+
 <script>
-// ─── CONFIG ──────────────────────────────────────────────────────
-// Points to your backend. Switches automatically between local dev and live.
-const API_BASE = window.location.hostname === 'localhost'
-  ? 'http://localhost:3000'
-  : window.location.origin;
+const CLAUDE = 'https://api.anthropic.com/v1/messages';
+const APIBASE = window.location.hostname === 'localhost' ? 'http://localhost:3000' : window.location.origin;
 
-const CLAUDE_API = 'https://api.anthropic.com/v1/messages';
-
-// ─── APP STATE ───────────────────────────────────────────────────
-let state = {
-  rides: [],
-  ftp: null,
-  chatHistory: [],
+let S = {
+  ftp:248, weight:70,
+  goal:'', goalDate:'',
+  ctl:68, atl:74,
+  rides:[], chatHistory:[],
+  calMonth: new Date(),
+  selDay: null,
 };
 
-// ─── NAVIGATION ──────────────────────────────────────────────────
-function switchPage(name, btn) {
+// ── NAV ──────────────────────────────────────────────────
+function go(page, btn) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('page-' + name).classList.add('active');
+  document.getElementById('page-' + page).classList.add('active');
   btn.classList.add('active');
-  if (name === 'coach') setTimeout(scrollChat, 100);
+  if (page === 'coach') setTimeout(scrollChat, 50);
+  if (page === 'cal')   renderCal();
+  if (page === 'dash')  renderDash();
 }
 
-// ─── BOOT: load data from your server ────────────────────────────
-async function loadData() {
+// ── BOOT ─────────────────────────────────────────────────
+async function boot() {
+  loadLocal();
+  refreshHeader();
+  renderDash();
+  renderCal();
   try {
-    const [ridesRes, ftpRes] = await Promise.all([
-      fetch(API_BASE + '/api/rides'),
-      fetch(API_BASE + '/api/ftp'),
-    ]);
-    if (ridesRes.ok) state.rides = await ridesRes.json();
-    if (ftpRes.ok) {
-      const ftpHistory = await ftpRes.json();
-      if (ftpHistory.length) {
-        state.ftp = ftpHistory[ftpHistory.length - 1].ftp;
-        document.getElementById('header-ftp').textContent = state.ftp;
-      }
+    const r = await fetch(APIBASE + '/api/rides');
+    if (r.ok) { S.rides = await r.json(); renderDash(); renderCal(); }
+  } catch {}
+}
+
+function loadLocal() {
+  try {
+    const p = JSON.parse(localStorage.getItem('cc') || '{}');
+    if (p.ftp)      S.ftp      = p.ftp;
+    if (p.weight)   S.weight   = p.weight;
+    if (p.goal)     S.goal     = p.goal;
+    if (p.goalDate) S.goalDate = p.goalDate;
+    if (p.ctl)      S.ctl      = p.ctl;
+    if (p.atl)      S.atl      = p.atl;
+    if (p.rides && p.rides.length) S.rides = p.rides;
+  } catch {}
+  if (!S.rides.length) S.rides = demo();
+}
+
+function persist() {
+  localStorage.setItem('cc', JSON.stringify({
+    ftp:S.ftp, weight:S.weight, goal:S.goal, goalDate:S.goalDate,
+    ctl:S.ctl, atl:S.atl, rides:S.rides,
+  }));
+}
+
+function demo() {
+  const ago = n => { const d=new Date(); d.setDate(d.getDate()-n); return d.toISOString().split('T')[0]; };
+  return [
+    {id:1,name:'Morning Z2',         date:ago(0), dur:105,dist:52, elev:340,avg_power:158,np:163,avg_hr:138,cad:89,tss:94, completed:true},
+    {id:2,name:'Sweet spot 2×20',    date:ago(2), dur:80, dist:38, elev:210,avg_power:204,np:211,avg_hr:158,cad:92,tss:121,completed:true},
+    {id:3,name:'Recovery spin',      date:ago(3), dur:0,  dist:0,  elev:0,  avg_power:0,  np:0,  avg_hr:0,  cad:0, tss:0,  completed:false,reason:null},
+    {id:4,name:'VO₂ max 5×4 min',   date:ago(5), dur:70, dist:34, elev:180,avg_power:224,np:238,avg_hr:172,cad:95,tss:118,completed:true},
+    {id:5,name:'Long endurance',     date:ago(7), dur:180,dist:91, elev:820,avg_power:152,np:158,avg_hr:132,cad:88,tss:163,completed:true},
+    {id:6,name:'Threshold 2×15',     date:ago(9), dur:0,  dist:0,  elev:0,  avg_power:0,  np:0,  avg_hr:0,  cad:0, tss:0,  completed:false,reason:null},
+    {id:7,name:'Z2 base',            date:ago(12),dur:90, dist:45, elev:270,avg_power:161,np:165,avg_hr:140,cad:89,tss:84, completed:true},
+    {id:8,name:'Group ride',         date:ago(14),dur:150,dist:78, elev:960,avg_power:182,np:201,avg_hr:155,cad:91,tss:148,completed:true},
+  ];
+}
+
+// ── HEADER ───────────────────────────────────────────────
+function refreshHeader() {
+  document.getElementById('h-ftp').textContent = S.ftp + 'W';
+}
+
+// ── DASHBOARD ────────────────────────────────────────────
+function renderDash() {
+  const wpkg = (S.ftp / S.weight).toFixed(2);
+  document.getElementById('d-ftp').textContent  = S.ftp;
+  document.getElementById('d-wpkg').textContent = wpkg;
+
+  const tsb = S.ctl - S.atl;
+  const tsbEl = document.getElementById('d-tsb');
+  tsbEl.textContent = (tsb >= 0 ? '+' : '') + tsb;
+  tsbEl.style.color = tsb > 5 ? 'var(--accent)' : tsb < -10 ? 'var(--red)' : 'var(--amber)';
+  document.getElementById('d-ctl').textContent = S.ctl;
+  document.getElementById('d-atl').textContent = S.atl;
+
+  const now = new Date();
+  const weekAgo = new Date(); weekAgo.setDate(now.getDate()-7);
+  const week = S.rides.filter(r => r.completed && new Date(r.date+'T12:00:00') >= weekAgo);
+
+  const km   = week.reduce((s,r)=>s+(r.dist||0),0);
+  const mins = week.reduce((s,r)=>s+(r.dur||0),0);
+  const elev = week.reduce((s,r)=>s+(r.elev||0),0);
+  const tss  = week.reduce((s,r)=>s+(r.tss||0),0);
+
+  document.getElementById('d-km').textContent   = km;
+  document.getElementById('d-time').textContent  = ftm(mins);
+  document.getElementById('d-elev').textContent  = elev.toLocaleString();
+  document.getElementById('d-tss').textContent   = tss;
+
+  // TSS bar chart
+  const tssDay = [0,0,0,0,0,0,0];
+  week.forEach(r => {
+    const dow = (new Date(r.date+'T12:00:00').getDay()+6)%7;
+    tssDay[dow] += r.tss||0;
+  });
+  const mx = Math.max(...tssDay,1);
+  const todayDow = (now.getDay()+6)%7;
+  const dls = ['M','T','W','T','F','S','S'];
+  document.getElementById('tss-chart').innerHTML = tssDay.map((t,i)=>
+    `<div class="bc"><div class="b${i===todayDow?' today':''}" style="height:${Math.round(t/mx*44)}px"></div><div class="bd">${dls[i]}</div></div>`
+  ).join('');
+
+  // Goal
+  if (S.goalDate) {
+    const gd   = new Date(S.goalDate+'T12:00:00');
+    const diff = Math.ceil((gd-now)/86400000);
+    const weeksLeft = Math.max(0,Math.ceil(diff/7));
+    const totalW = 12, doneW = Math.max(0,totalW-weeksLeft);
+    document.getElementById('g-name').textContent   = S.goal || 'Goal event';
+    document.getElementById('g-date').textContent   = weeksLeft + ' weeks away · ' + gd.toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});
+    document.getElementById('g-prog').style.width   = Math.round(doneW/totalW*100)+'%';
+    document.getElementById('g-week').textContent   = 'Week '+doneW+' of '+totalW;
+    document.getElementById('g-target').textContent = 'Target: '+(S.ftp+Math.round(doneW*1.8))+'W';
+    const status = weeksLeft > 4 ? 'On track' : weeksLeft > 0 ? 'Final push' : 'Race week!';
+    document.getElementById('g-status').textContent = status;
+  } else {
+    document.getElementById('g-name').textContent = 'No goal set yet';
+    document.getElementById('g-date').textContent = 'Tap "Edit FTP & weight" to add a goal event';
+  }
+}
+
+function ftm(mins) {
+  const h = Math.floor(mins/60), m = mins%60;
+  return h ? h+'h'+(m?' '+m+'m':'') : m+'m';
+}
+
+// ── MODAL ────────────────────────────────────────────────
+function openEdit() {
+  document.getElementById('e-ftp').value    = S.ftp;
+  document.getElementById('e-weight').value = S.weight;
+  document.getElementById('e-goal').value   = S.goal;
+  document.getElementById('e-date').value   = S.goalDate;
+  document.getElementById('overlay').classList.add('open');
+}
+function maybeClose(e) {
+  if (e.target === document.getElementById('overlay'))
+    document.getElementById('overlay').classList.remove('open');
+}
+function saveEdit() {
+  const f = +document.getElementById('e-ftp').value;
+  const w = +document.getElementById('e-weight').value;
+  const g =  document.getElementById('e-goal').value;
+  const d =  document.getElementById('e-date').value;
+  if (f > 0) S.ftp    = f;
+  if (w > 0) S.weight = w;
+  S.goal     = g;
+  S.goalDate = d;
+  persist(); refreshHeader(); renderDash();
+  document.getElementById('overlay').classList.remove('open');
+}
+
+// ── CALENDAR ─────────────────────────────────────────────
+function chMonth(dir) { S.calMonth.setMonth(S.calMonth.getMonth()+dir); renderCal(); }
+
+function renderCal() {
+  const m = S.calMonth;
+  document.getElementById('cal-month').textContent = m.toLocaleDateString('en-AU',{month:'long',year:'numeric'});
+  const yr = m.getFullYear(), mo = m.getMonth();
+  const first = new Date(yr,mo,1);
+  const last  = new Date(yr,mo+1,0);
+  const offset = (first.getDay()+6)%7;
+  const today  = new Date().toISOString().split('T')[0];
+  const dows   = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  let html = dows.map(d=>`<div class="dow">${d}</div>`).join('');
+  for (let i=0;i<offset;i++) html+=`<div class="cd empty"></div>`;
+  for (let d=1;d<=last.getDate();d++) {
+    const ds = `${yr}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const ride = S.rides.find(r=>r.date===ds);
+    const isToday = ds===today;
+    let inner = '';
+    if (ride) {
+      inner = `<div class="dot ${ride.completed?'ride':'missed'}"></div>`;
+      if (ride.completed && ride.tss) inner += `<div class="cal-tss">${ride.tss}</div>`;
     }
-  } catch {
-    // No server running — load demo data so you can still see the app
-    loadDemoData();
+    html += `<div class="cd${isToday?' today':''}" onclick="selDay('${ds}')"><div class="dn">${d}</div>${inner}</div>`;
   }
-  renderHome();
-  renderPlan();
-  renderRides();
+  document.getElementById('cal-grid').innerHTML = html;
+  if (S.selDay) renderDetail(S.selDay);
 }
 
-function loadDemoData() {
-  const ago = n => { const d = new Date(); d.setDate(d.getDate() - n); return d.toISOString().split('T')[0]; };
-  state.ftp = 248;
-  document.getElementById('header-ftp').textContent = '248';
-  state.rides = [
-    { id:1, name:'Morning Z2', date:ago(1), duration_min:105, avg_power:158, np:163, avg_hr:138, tss:94, completed:true },
-    { id:2, name:'Sweet spot 2×20', date:ago(3), duration_min:80, avg_power:204, np:211, avg_hr:158, tss:121, completed:true },
-    { id:3, name:'Recovery spin', date:ago(4), duration_min:0, avg_power:0, np:0, avg_hr:0, tss:0, completed:false },
-    { id:4, name:'VO₂ max 5×4 min', date:ago(6), duration_min:70, avg_power:224, np:238, avg_hr:172, tss:118, completed:true },
-    { id:5, name:'Long endurance ride', date:ago(8), duration_min:180, avg_power:152, np:158, avg_hr:132, tss:163, completed:true },
-    { id:6, name:'Threshold 2×15', date:ago(10), duration_min:0, avg_power:0, np:0, avg_hr:0, tss:0, completed:false },
-    { id:7, name:'Z2 base ride', date:ago(13), duration_min:90, avg_power:161, np:165, avg_hr:140, tss:84, completed:true },
-  ];
-}
+function selDay(ds) { S.selDay = ds; renderDetail(ds); }
 
-// ─── RENDER: DASHBOARD ───────────────────────────────────────────
-function renderHome() {
-  const done   = state.rides.filter(r => r.completed);
-  const missed = state.rides.filter(r => !r.completed);
-  const ftp    = state.ftp || estimateFTP(done);
-  const tss    = done.slice(0, 7).reduce((s, r) => s + (r.tss || 0), 0);
-  const compliance = state.rides.length
-    ? Math.round(done.length / state.rides.length * 100) : 0;
+function renderDetail(ds) {
+  const ride = S.rides.find(r=>r.date===ds);
+  const el   = document.getElementById('cal-detail');
+  if (!ride) { el.innerHTML=''; return; }
 
-  let html = '';
+  const d    = new Date(ds+'T12:00:00');
+  const nice = d.toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long'});
 
-  // Sync status bar
-  html += `<div class="sync-banner">
-    <div class="sync-dot"></div>
-    Garmin connected — rides sync automatically after each activity
-  </div>`;
-
-  // Stats grid
-  html += `<div class="stats-row">
-    <div class="stat green">
-      <div class="lbl">FTP</div>
-      <div class="val">${ftp}</div>
-      <div class="sub">watts · ~${(ftp/70).toFixed(1)} w/kg</div>
-    </div>
-    <div class="stat">
-      <div class="lbl">Weekly TSS</div>
-      <div class="val">${tss}</div>
-      <div class="sub">target ~380</div>
-    </div>
-    <div class="stat">
-      <div class="lbl">Compliance</div>
-      <div class="val">${compliance}<span style="font-size:14px;color:var(--text3)">%</span></div>
-      <div class="sub">${done.length} of ${state.rides.length} done</div>
-    </div>
-    <div class="stat">
-      <div class="lbl">Rides logged</div>
-      <div class="val">${done.length}</div>
-      <div class="sub">total sessions</div>
-    </div>
-  </div>`;
-
-  // Power zone distribution
-  const zones = [
-    { lbl:'Z1', pct:12, color:'#4d9fff' },
-    { lbl:'Z2', pct:36, color:'#00b85e' },
-    { lbl:'Z3', pct:18, color:'#f5c518' },
-    { lbl:'Z4', pct:18, color:'#f5a623' },
-    { lbl:'Z5', pct:10, color:'#ff6b35' },
-    { lbl:'Z6', pct:4,  color:'#ff4d4d' },
-    { lbl:'Z7', pct:2,  color:'#cc00ff' },
-  ];
-  html += `<div class="card">
-    <div class="card-title">Power zone distribution</div>
-    <div class="zone-row">
-      ${zones.map(z => `
-        <div class="zone-col">
-          <div class="zone-bar" style="height:${Math.max(4, z.pct * 2)}px;background:${z.color};border-radius:3px 3px 0 0;width:100%"></div>
-          <div class="zone-lbl">${z.lbl}</div>
-        </div>`).join('')}
-    </div>
-    <div style="font-size:10px;color:var(--text3);font-family:var(--mono)">Z1 recovery · Z2 endurance · Z3 tempo · Z4 threshold · Z5–7 high intensity</div>
-  </div>`;
-
-  // Missed session banner
-  if (missed.length) {
-    const names = missed.slice(0, 2).map(r => r.name).join(' and ');
-    html += `<div class="missed-banner">
-      <div class="missed-title">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        ${missed.length} missed session${missed.length > 1 ? 's' : ''} detected
-      </div>
-      <p>I noticed you didn't complete <strong style="color:var(--text)">${names}</strong>. Tell me why and I'll adjust your upcoming plan.</p>
-      <div class="reason-btns">
-        <button class="reason-btn" onclick="reportMissed('fatigue')">Too fatigued</button>
-        <button class="reason-btn" onclick="reportMissed('busy')">Too busy</button>
-        <button class="reason-btn" onclick="reportMissed('illness')">Illness / injury</button>
-        <button class="reason-btn" onclick="reportMissed('motivation')">Low motivation</button>
+  if (!ride.completed) {
+    el.innerHTML = `<div class="miss-box">
+      <h3><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Missed — ${ride.name}</h3>
+      <p>${nice} · Tell me why and I'll adjust your upcoming sessions.</p>
+      <div class="r-row">
+        <button class="r-btn" onclick="missedTap(${ride.id},'fatigue')">Too fatigued</button>
+        <button class="r-btn" onclick="missedTap(${ride.id},'busy')">No time</button>
+        <button class="r-btn" onclick="missedTap(${ride.id},'illness')">Illness / injury</button>
+        <button class="r-btn" onclick="missedTap(${ride.id},'motivation')">Low motivation</button>
       </div>
     </div>`;
-  }
-
-  // Recent rides list
-  html += `<div class="section-title">Recent rides</div><div class="card">`;
-  state.rides.slice(0, 6).forEach(r => {
-    html += `<div class="ride-item">
-      <div class="ride-dot ${r.completed ? 'done' : 'missed'}"></div>
-      <div class="ride-info">
-        <div class="ride-name">${r.name}</div>
-        <div class="ride-meta">${r.date}${r.completed ? ' · ' + r.duration_min + 'min · TSS ' + r.tss : ' · not completed'}</div>
-      </div>
-      ${r.completed && r.avg_power
-        ? `<div class="ride-power"><div class="pw">${r.avg_power}W</div><div class="pw-lbl">avg pwr</div></div>`
-        : `<span class="badge missed">missed</span>`}
-    </div>`;
-  });
-  html += `</div>`;
-
-  document.getElementById('home-content').innerHTML = html;
-}
-
-// ─── RENDER: TRAINING PLAN ───────────────────────────────────────
-function renderPlan() {
-  const ftp  = state.ftp || 248;
-  const R    = n => Math.round(n);
-  const days = [
-    { day:'Mon', type:'z2',   name:'Z2 endurance',       desc:`${R(ftp*.65)}–${R(ftp*.75)}W · 90 min`,  tss:70  },
-    { day:'Tue', type:'ss',   name:'Sweet spot 2×20 min', desc:`${R(ftp*.88)}–${R(ftp*.94)}W · 80 min`,  tss:105 },
-    { day:'Wed', type:'rest', name:'Recovery spin',       desc:`Easy · 45 min · <${R(ftp*.6)}W`,         tss:25  },
-    { day:'Thu', type:'vo2',  name:'VO₂ max 5×4 min',    desc:`${R(ftp*1.06)}–${R(ftp*1.2)}W · 70 min`, tss:112 },
-    { day:'Fri', type:'z2',   name:'Z2 aerobic base',    desc:`${R(ftp*.65)}–${R(ftp*.75)}W · 2 hrs`,   tss:92  },
-    { day:'Sat', type:'ss',   name:'Long sweet spot',    desc:`${R(ftp*.85)}–${R(ftp*.92)}W · 3 hrs`,   tss:168 },
-    { day:'Sun', type:'rest', name:'Rest day',            desc:'Full recovery — no riding',              tss:0   },
-  ];
-  const totalTSS = days.reduce((s, d) => s + d.tss, 0);
-
-  let html = `<div class="card" style="margin-bottom:12px;">
-    <div class="card-title">This week · FTP focus block</div>
-    <div style="font-size:12px;color:var(--text2);line-height:1.7;">
-      Weekly TSS target: <strong style="color:var(--text)">${totalTSS}</strong><br>
-      Mix of Z2 base, sweet spot intervals, and VO₂ max work. This structure targets a <strong style="color:var(--green)">5–8W FTP gain</strong> over 6 weeks.
-    </div>
-  </div>`;
-
-  days.forEach(d => {
-    html += `<div class="plan-item">
-      <div class="plan-day-lbl">${d.day}</div>
-      <div class="plan-workout">
-        <div class="plan-color ${d.type}"></div>
-        <div style="flex:1;">
-          <div class="plan-name">${d.name}</div>
-          <div class="plan-desc">${d.desc}</div>
-        </div>
-        ${d.tss ? `<div class="plan-tss">${d.tss}<br><span style="font-size:9px;color:var(--text3)">TSS</span></div>` : ''}
-      </div>
-    </div>`;
-  });
-
-  document.getElementById('plan-content').innerHTML = html;
-}
-
-// ─── RENDER: RIDE HISTORY ────────────────────────────────────────
-function renderRides() {
-  if (!state.rides.length) {
-    document.getElementById('rides-content').innerHTML =
-      '<div class="loading-state">No rides yet. Connect Garmin and finish a ride to see it here.</div>';
     return;
   }
 
-  let html = '<div class="card">';
-  state.rides.forEach(r => {
-    html += `<div class="ride-item">
-      <div class="ride-dot ${r.completed ? 'done' : 'missed'}"></div>
-      <div class="ride-info">
-        <div class="ride-name">${r.name}</div>
-        <div class="ride-meta">${r.date}${r.completed
-          ? ` · ${r.duration_min}min · ${r.avg_power}W · TSS ${r.tss}`
-          : ' · missed'}</div>
+  const IF = ride.np && S.ftp ? (ride.np/S.ftp).toFixed(2) : '—';
+
+  el.innerHTML = `<div class="detail-wrap">
+    <div class="detail-hd">
+      <div>
+        <div class="detail-name">${ride.name}</div>
+        <div class="detail-date">${nice}</div>
       </div>
-      ${r.completed && r.avg_power
-        ? `<div class="ride-power"><div class="pw">${r.np || r.avg_power}W</div><div class="pw-lbl">NP</div></div>`
-        : `<span class="badge missed">missed</span>`}
-    </div>`;
-  });
-  html += '</div>';
-  document.getElementById('rides-content').innerHTML = html;
+      <div class="close-btn" onclick="document.getElementById('cal-detail').innerHTML='';S.selDay=null;">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </div>
+    </div>
+    <div class="map-box">
+      <svg viewBox="0 0 360 140" preserveAspectRatio="xMidYMid slice">
+        <rect width="360" height="140" fill="#141414"/>
+        <path d="M20,90 C50,65 70,105 100,75 S145,45 170,68 S215,95 245,58 S295,28 320,55 S348,78 355,68" stroke="#c8ff00" stroke-width="2" fill="none" opacity="0.7" stroke-linecap="round"/>
+        <circle cx="20" cy="90" r="4" fill="#c8ff00"/>
+        <circle cx="355" cy="68" r="4" fill="#c8ff00" opacity="0.5"/>
+        <circle cx="20" cy="90" r="8" fill="#c8ff00" opacity="0.15"/>
+      </svg>
+      <div class="map-tag">${ride.dist}km · ${ride.elev}m ↑</div>
+    </div>
+    <div class="d-stats">
+      <div class="ds"><div class="dv">${ride.avg_power}W</div><div class="dl">Avg Power</div></div>
+      <div class="ds"><div class="dv">${ride.np}W</div><div class="dl">Norm Power</div></div>
+      <div class="ds"><div class="dv">${ride.tss}</div><div class="dl">TSS</div></div>
+      <div class="ds"><div class="dv">${ride.dist}km</div><div class="dl">Distance</div></div>
+      <div class="ds"><div class="dv">${ftm(ride.dur)}</div><div class="dl">Moving time</div></div>
+      <div class="ds"><div class="dv">${ride.elev}m</div><div class="dl">Elevation</div></div>
+      <div class="ds"><div class="dv">${ride.avg_hr}</div><div class="dl">Avg HR</div></div>
+      <div class="ds"><div class="dv">${ride.cad}</div><div class="dl">Cadence</div></div>
+      <div class="ds"><div class="dv">${IF}</div><div class="dl">Int. Factor</div></div>
+    </div>
+  </div>`;
 }
 
-// ─── MISSED SESSION FLOW ─────────────────────────────────────────
-function reportMissed(reason) {
+// ── MISSED FLOW ───────────────────────────────────────────
+function missedTap(id, reason) {
+  const ride = S.rides.find(r=>r.id===id);
+  if (ride) { ride.reason = reason; persist(); }
   const msgs = {
-    fatigue:    'I missed those sessions because I was too fatigued — the hard efforts really caught up with me.',
-    busy:       'I missed them because work and life got in the way this week — no time to ride.',
-    illness:    'I was feeling unwell so I decided not to push through it.',
-    motivation: "I just wasn't feeling motivated and needed a mental break from training.",
+    fatigue:    `I missed my ${ride?.name||'session'} because I was too fatigued.`,
+    busy:       `I didn't have enough time for my ${ride?.name||'session'}. Can you adjust the plan?`,
+    illness:    `I was feeling unwell so I skipped my ${ride?.name||'session'}.`,
+    motivation: `I wasn't feeling motivated for my ${ride?.name||'session'} and needed a break.`,
   };
-  // Switch to coach tab and send the message
-  switchPage('coach', document.querySelectorAll('.nav-btn')[3]);
-  setTimeout(() => askClaude(msgs[reason], true), 300);
+  go('coach', document.querySelectorAll('.nav-btn')[0]);
+  setTimeout(() => callClaude(msgs[reason], true), 250);
 }
 
-// ─── CLAUDE COACH CHAT ───────────────────────────────────────────
-async function sendMessage() {
-  const input = document.getElementById('chat-input');
-  const msg = input.value.trim();
+// ── CLAUDE ────────────────────────────────────────────────
+function sq(msg) { callClaude(msg, false); }
+
+function send() {
+  const el = document.getElementById('chat-input');
+  const msg = el.value.trim();
   if (!msg) return;
-  input.value = '';
-  await askClaude(msg, false);
+  el.value=''; el.style.height='';
+  callClaude(msg, false);
 }
+function ck(e) { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); send(); } }
+function ar(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,100)+'px'; }
 
-function sendQuick(msg) { askClaude(msg, false); }
+async function callClaude(userMsg, isMissed) {
+  addUser(userMsg);
+  const tid = addTyping();
 
-async function askClaude(userMsg, isMissed = false) {
-  addUserBubble(userMsg);
-  const typingId = addTyping();
-
-  const ftp = state.ftp || estimateFTP(state.rides.filter(r => r.completed));
-  const rideLog = state.rides.map(r =>
+  const log = S.rides.map(r =>
     r.completed
-      ? `${r.date}: ${r.name} — avg ${r.avg_power}W, NP ${r.np}W, ${r.duration_min}min, TSS ${r.tss}, HR ${r.avg_hr}`
-      : `${r.date}: ${r.name} — MISSED`
-  ).join('\n') || 'No rides logged yet.';
+      ? `${r.date}: "${r.name}" — avg ${r.avg_power}W, NP ${r.np}W, ${r.dur}min, TSS ${r.tss}, HR ${r.avg_hr}, dist ${r.dist}km, elev ${r.elev}m`
+      : `${r.date}: "${r.name}" — MISSED${r.reason?' (reason: '+r.reason+')':''}`
+  ).join('\n');
 
-  const system = `You are a concise, expert cycling coach specialising in FTP improvement and power-based training. 
-Current athlete FTP: ${ftp}W.
-Full ride history:
-${rideLog}
-${isMissed
-  ? 'The athlete is explaining why they missed planned sessions. Acknowledge briefly and empathetically, then give a specific restructured plan with adjusted power targets.'
-  : 'Be direct and data-driven. Keep responses short — 3 to 5 sentences max unless asked for detail. No markdown headers.'}`;
+  const sys = `You are a friendly, expert cycling coach specialising in FTP improvement through power-based training.
 
-  state.chatHistory.push({ role: 'user', content: userMsg });
+Athlete:
+- FTP: ${S.ftp}W | Weight: ${S.weight}kg | w/kg: ${(S.ftp/S.weight).toFixed(2)}
+- CTL (fitness): ${S.ctl} | ATL (fatigue): ${S.atl} | Form (TSB): ${S.ctl-S.atl}
+- Goal: ${S.goal||'none set'} on ${S.goalDate||'no date set'}
+
+Ride history (most recent first):
+${log||'No rides yet.'}
+
+How to respond:
+- Be conversational and direct like a real coach, not a chatbot
+- Always give power targets in exact watts using the athlete's FTP (e.g. "158–173W" for Z2, not just "zone 2")
+- When they miss a session: acknowledge briefly, ask one follow-up question if you need more info, then give a specific adjusted plan
+- When building plans: ask about available time per day if not told, then give a day-by-day plan with exact targets
+- When they mention fatigue: suggest an easier session tomorrow with specific reduced targets
+- When they mention time constraints: ask how many minutes they have and give a condensed workout
+- When they want a group ride: incorporate it and adjust surrounding sessions for freshness
+- Keep responses concise unless they ask for detail. No markdown headers.`;
+
+  S.chatHistory.push({role:'user',content:userMsg});
 
   try {
-    const res = await fetch(CLAUDE_API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system,
-        messages: state.chatHistory.slice(-14),
+    const res = await fetch(CLAUDE, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:sys,
+        messages:S.chatHistory.slice(-16),
       }),
     });
-
     const data = await res.json();
-    removeTyping(typingId);
-
+    removeTyping(tid);
     if (data.content?.[0]?.text) {
       const reply = data.content[0].text;
-      state.chatHistory.push({ role: 'assistant', content: reply });
-      const quickReplies = isMissed
-        ? ['Show me the updated plan', 'What should I prioritise this week?', 'How do I avoid overtraining?']
-        : [];
-      addAIBubble(reply, quickReplies);
-      if (isMissed) renderPlan();
+      S.chatHistory.push({role:'assistant',content:reply});
+      addAI(reply, isMissed
+        ? ['What about the rest of this week?','How hard should tomorrow be?']
+        : []);
     } else {
-      addAIBubble('Hmm, something went wrong. Make sure you\'re using this app through Claude.ai.');
+      addAI('Open this app inside Claude.ai to activate the AI coach.');
     }
   } catch {
-    removeTyping(typingId);
-    addAIBubble('Could not reach the AI coach. Open this app inside Claude.ai to activate it.');
+    removeTyping(tid);
+    addAI("Can't connect right now. Make sure you're using this through Claude.ai.");
   }
 }
 
-// ─── CHAT UI HELPERS ─────────────────────────────────────────────
-function addUserBubble(text) {
+// ── CHAT HELPERS ──────────────────────────────────────────
+function addUser(t) {
   const el = document.createElement('div');
-  el.className = 'msg user';
-  el.innerHTML = `<div class="av me">Me</div><div class="bubble user">${escHtml(text)}</div>`;
-  document.getElementById('chat-messages').appendChild(el);
+  el.className='msg user';
+  el.innerHTML=`<div class="av me">Me</div><div class="bubble user">${esc(t)}</div>`;
+  document.getElementById('chat-scroll').appendChild(el);
   scrollChat();
 }
-
-function addAIBubble(text, quickReplies = []) {
-  const formatted = text
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\n/g, '<br>');
-  const qrs = quickReplies.length
-    ? `<div class="quick-replies">${quickReplies.map(q =>
-        `<div class="qr" onclick="sendQuick('${q.replace(/'/g, "\\'")}')">${q}</div>`
-      ).join('')}</div>`
-    : '';
+function addAI(t, qrs=[]) {
+  const fmt = esc(t).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>');
+  const qrh = qrs.length ? `<div class="qrs">${qrs.map(q=>`<div class="qr" onclick="sq('${q.replace(/'/g,"\\'")}' )">${q}</div>`).join('')}</div>` : '';
   const el = document.createElement('div');
-  el.className = 'msg';
-  el.innerHTML = `<div class="av ai">AI</div><div><div class="bubble ai">${formatted}</div>${qrs}</div>`;
-  document.getElementById('chat-messages').appendChild(el);
+  el.className='msg';
+  el.innerHTML=`<div class="av ai">AI</div><div><div class="bubble ai">${fmt}</div>${qrh}</div>`;
+  document.getElementById('chat-scroll').appendChild(el);
   scrollChat();
 }
-
 function addTyping() {
-  const id = 'typ-' + Date.now();
-  const el = document.createElement('div');
-  el.className = 'msg'; el.id = id;
-  el.innerHTML = `<div class="av ai">AI</div><div class="bubble ai"><div class="typing"><span></span><span></span><span></span></div></div>`;
-  document.getElementById('chat-messages').appendChild(el);
-  scrollChat();
-  return id;
+  const id='t'+Date.now();
+  const el=document.createElement('div');
+  el.className='msg'; el.id=id;
+  el.innerHTML=`<div class="av ai">AI</div><div class="bubble ai"><div class="t-bub"><span></span><span></span><span></span></div></div>`;
+  document.getElementById('chat-scroll').appendChild(el);
+  scrollChat(); return id;
 }
-
 function removeTyping(id) { document.getElementById(id)?.remove(); }
-function scrollChat() { const c = document.getElementById('chat-messages'); c.scrollTop = c.scrollHeight; }
-function escHtml(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function estimateFTP(rides) {
-  if (!rides.length) return 220;
-  return Math.round(Math.max(...rides.map(r => r.np || r.avg_power || 0)) * 0.95);
-}
+function scrollChat() { const c=document.getElementById('chat-scroll'); c.scrollTop=c.scrollHeight; }
+function esc(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-// ─── PWA: register service worker ────────────────────────────────
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js').catch(console.error);
-}
-
-// ─── START ───────────────────────────────────────────────────────
-loadData();
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
+boot();
 </script>
 </body>
 </html>
