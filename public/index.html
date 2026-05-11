@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CycleCoach">
+<meta name="theme-color" content="#00e87a">
+<title>CycleCoach AI</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e0c; --surface: #111614; --surface2: #181e1b;
+    --border: #1e2822; --border2: #253028;
+    --green: #00e87a; --green-dim: #00b85e; --green-muted: #0d3321;
+    --amber: #f5a623; --amber-muted: #2e1f06;
+    --red: #ff4d4d; --red-muted: #2a0a0a;
+    --blue: #4d9fff;
+    --text: #e8f0eb; --text2: #7a9082; --text3: #3d5446;
+    --mono: 'DM Mono', monospace;
+    --display: 'Syne', sans-serif;
+    --body: 'DM Sans', sans-serif;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--body); overflow: hidden; }
+
+  .app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+
+  /* ── HEADER ── */
+  .header {
+    padding: calc(var(--safe-top) + 14px) 20px 14px;
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+  }
+  .header-left { display: flex; align-items: center; gap: 10px; }
+  .logo-icon { width: 30px; height: 30px; border-radius: 8px; background: var(--green); display: flex; align-items: center; justify-content: center; }
+  .logo-icon svg { width: 16px; height: 16px; stroke: #000; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  .logo-text { font-family: var(--display); font-size: 16px; font-weight: 700; color: var(--text); }
+  .ftp-pill { background: var(--green-muted); border: 1px solid #1a4a30; border-radius: 20px; padding: 4px 12px; display: flex; align-items: center; gap: 5px; }
+  .ftp-pill .ftp-num { font-family: var(--mono); font-size: 13px; color: var(--green); font-weight: 500; }
+  .ftp-pill .ftp-lbl { font-size: 10px; color: var(--green-dim); }
+
+  /* ── PAGES ── */
+  .pages { flex: 1; overflow: hidden; position: relative; }
+  .page { position: absolute; inset: 0; overflow-y: auto; padding: 16px; display: none; -webkit-overflow-scrolling: touch; }
+  .page.active { display: block; }
+  .page::-webkit-scrollbar { display: none; }
+
+  /* ── BOTTOM NAV ── */
+  .bottom-nav { display: flex; background: var(--surface); border-top: 1px solid var(--border); padding-bottom: var(--safe-bottom); flex-shrink: 0; }
+  .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 0; border: none; background: none; color: var(--text3); cursor: pointer; font-family: var(--body); transition: color 0.15s; }
+  .nav-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .nav-btn span { font-size: 10px; }
+  .nav-btn.active { color: var(--green); }
+
+  /* ── SHARED COMPONENTS ── */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; }
+  .card-title { font-size: 11px; font-family: var(--mono); color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; }
+  .section-title { font-size: 11px; font-family: var(--mono); color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; margin: 16px 0 8px; }
+
+  .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+  .stat { background: var(--surface2); border-radius: 10px; padding: 12px 14px; }
+  .stat .lbl { font-size: 10px; font-family: var(--mono); color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+  .stat .val { font-family: var(--display); font-size: 24px; font-weight: 700; color: var(--text); line-height: 1; }
+  .stat .sub { font-size: 10px; color: var(--text3); margin-top: 3px; }
+  .stat.green .val { color: var(--green); }
+
+  /* Ride list items */
+  .ride-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .ride-item:last-child { border-bottom: none; }
+  .ride-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .ride-dot.done { background: var(--green); box-shadow: 0 0 5px var(--green); }
+  .ride-dot.missed { background: var(--red); }
+  .ride-info { flex: 1; min-width: 0; }
+  .ride-name { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ride-meta { font-size: 11px; color: var(--text3); font-family: var(--mono); margin-top: 2px; }
+  .ride-power { text-align: right; flex-shrink: 0; }
+  .ride-power .pw { font-family: var(--mono); font-size: 14px; color: var(--text); }
+  .ride-power .pw-lbl { font-size: 9px; color: var(--text3); text-transform: uppercase; }
+
+  /* Badges */
+  .badge { font-size: 10px; font-family: var(--mono); padding: 3px 8px; border-radius: 20px; display: inline-block; flex-shrink: 0; }
+  .badge.done { background: var(--green-muted); color: var(--green); }
+  .badge.missed { background: var(--red-muted); color: var(--red); }
+
+  /* Missed session banner */
+  .missed-banner { background: var(--red-muted); border: 1px solid #3a1010; border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+  .missed-title { font-size: 13px; font-weight: 500; color: var(--red); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .missed-title svg { width: 14px; height: 14px; stroke: var(--red); fill: none; stroke-width: 2; flex-shrink: 0; }
+  .missed-banner p { font-size: 12px; color: var(--text2); line-height: 1.6; margin-bottom: 10px; }
+  .reason-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+  .reason-btn { padding: 6px 12px; border: 1px solid #3a1010; border-radius: 20px; font-size: 11px; font-family: var(--mono); color: var(--red); background: transparent; cursor: pointer; }
+
+  /* Sync banner */
+  .sync-banner { background: var(--green-muted); border: 1px solid #1a4a30; border-radius: 10px; padding: 10px 14px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--green); }
+  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green); flex-shrink: 0; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
+
+  /* Training plan items */
+  .plan-item { display: flex; gap: 10px; margin-bottom: 6px; align-items: flex-start; }
+  .plan-day-lbl { font-family: var(--mono); font-size: 10px; color: var(--text3); width: 26px; padding-top: 11px; flex-shrink: 0; }
+  .plan-workout { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; }
+  .plan-color { width: 3px; border-radius: 2px; align-self: stretch; flex-shrink: 0; min-height: 32px; }
+  .plan-color.z2   { background: var(--blue); }
+  .plan-color.ss   { background: var(--amber); }
+  .plan-color.vo2  { background: var(--red); }
+  .plan-color.rest { background: var(--border2); }
+  .plan-name { font-size: 13px; font-weight: 500; color: var(--text); }
+  .plan-desc { font-size: 11px; color: var(--text3); font-family: var(--mono); margin-top: 2px; }
+  .plan-tss { font-family: var(--mono); font-size: 11px; color: var(--text2); margin-left: auto; flex-shrink: 0; text-align: right; }
+
+  /* Zone bars */
+  .zone-row { display: flex; gap: 5px; align-items: flex-end; height: 64px; margin: 10px 0 6px; }
+  .zone-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .zone-bar { width: 100%; border-radius: 3px 3px 0 0; }
+  .zone-lbl { font-family: var(--mono); font-size: 9px; color: var(--text3); }
+
+  /* Chat */
+  .chat-wrap { display: flex; flex-direction: column; position: absolute; inset: 0; }
+  .chat-messages { flex: 1; overflow-y: auto; padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; -webkit-overflow-scrolling: touch; }
+  .chat-messages::-webkit-scrollbar { display: none; }
+  .msg { display: flex; gap: 8px; }
+  .msg.user { flex-direction: row-reverse; }
+  .av { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; font-family: var(--mono); }
+  .av.ai { background: var(--green-muted); color: var(--green); border: 1px solid #1a4a30; }
+  .av.me { background: var(--surface2); color: var(--text2); border: 1px solid var(--border2); }
+  .bubble { max-width: 82%; padding: 9px 13px; border-radius: 14px; font-size: 13px; line-height: 1.65; }
+  .bubble.ai { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-top-left-radius: 4px; }
+  .bubble.user { background: var(--green-muted); border: 1px solid #1a4a30; color: #b0f0ce; border-top-right-radius: 4px; }
+  .bubble strong { color: var(--green); font-weight: 500; }
+  .quick-replies { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+  .qr { padding: 5px 11px; border: 1px solid var(--border2); border-radius: 20px; font-size: 11px; color: var(--text2); font-family: var(--mono); cursor: pointer; background: var(--surface2); }
+  .chat-input-bar { padding: 10px 12px; padding-bottom: calc(10px + var(--safe-bottom)); border-top: 1px solid var(--border); background: var(--surface); display: flex; gap: 8px; flex-shrink: 0; }
+  .chat-input { flex: 1; background: var(--surface2); border: 1px solid var(--border2); border-radius: 20px; padding: 10px 16px; font-size: 14px; color: var(--text); font-family: var(--body); outline: none; }
+  .chat-input::placeholder { color: var(--text3); }
+  .send-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--green); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .send-btn svg { width: 16px; height: 16px; stroke: #000; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .typing { display: flex; align-items: center; gap: 4px; padding: 2px 0; }
+  .typing span { width: 5px; height: 5px; border-radius: 50%; background: var(--green); animation: bounce 1.2s infinite; }
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-4px);opacity:1} }
+
+  /* Loading */
+  .loading-state { text-align: center; padding: 50px 20px; color: var(--text3); font-size: 13px; }
+  .spinner { width: 20px; height: 20px; border: 2px solid var(--border2); border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
+      </div>
+      <span class="logo-text">CycleCoach</span>
+    </div>
+    <div class="ftp-pill">
+      <span class="ftp-num" id="header-ftp">—</span>
+      <span class="ftp-lbl">W FTP</span>
+    </div>
+  </div>
+
+  <!-- PAGES -->
+  <div class="pages">
+
+    <!-- Dashboard -->
+    <div class="page active" id="page-home">
+      <div id="home-content"><div class="loading-state"><div class="spinner"></div>Loading your data...</div></div>
+    </div>
+
+    <!-- Plan -->
+    <div class="page" id="page-plan">
+      <div id="plan-content"><div class="loading-state"><div class="spinner"></div>Building your plan...</div></div>
+    </div>
+
+    <!-- Rides -->
+    <div class="page" id="page-rides">
+      <div id="rides-content"><div class="loading-state"><div class="spinner"></div>Loading ride history...</div></div>
+    </div>
+
+    <!-- Coach Chat -->
+    <div class="page" id="page-coach" style="padding:0;">
+      <div class="chat-wrap">
+        <div class="chat-messages" id="chat-messages">
+          <div class="msg">
+            <div class="av ai">AI</div>
+            <div>
+              <div class="bubble ai">
+                Hey! I'm your AI cycling coach. I can see all your Garmin rides and I'll help you push your FTP higher.<br><br>Once your Garmin is connected, I'll automatically analyse every ride when it syncs — and flag anything that needs attention.
+              </div>
+              <div class="quick-replies">
+                <div class="qr" onclick="sendQuick('How do I improve my FTP as fast as possible?')">Improve FTP fast</div>
+                <div class="qr" onclick="sendQuick('Explain sweet spot training and why it works')">Sweet spot training</div>
+                <div class="qr" onclick="sendQuick('How much weekly TSS should I be targeting?')">Weekly TSS target</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="chat-input-bar">
+          <input class="chat-input" id="chat-input" type="text" placeholder="Ask your coach..." onkeydown="if(event.key==='Enter')sendMessage()">
+          <button class="send-btn" onclick="sendMessage()">
+            <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" onclick="switchPage('home',this)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <span>Dashboard</span>
+    </button>
+    <button class="nav-btn" onclick="switchPage('plan',this)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      <span>Plan</span>
+    </button>
+    <button class="nav-btn" onclick="switchPage('rides',this)">
+      <svg viewBox="0 0 24 24"><path d="M12 20V10M6 20V16M18 20V4"/></svg>
+      <span>Rides</span>
+    </button>
+    <button class="nav-btn" onclick="switchPage('coach',this)">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span>Coach</span>
+    </button>
+  </nav>
+
+</div>
+
+<script>
+// ─── CONFIG ──────────────────────────────────────────────────────
+// Points to your backend. Switches automatically between local dev and live.
+const API_BASE = window.location.hostname === 'localhost'
+  ? 'http://localhost:3000'
+  : window.location.origin;
+
+const CLAUDE_API = 'https://api.anthropic.com/v1/messages';
+
+// ─── APP STATE ───────────────────────────────────────────────────
+let state = {
+  rides: [],
+  ftp: null,
+  chatHistory: [],
+};
+
+// ─── NAVIGATION ──────────────────────────────────────────────────
+function switchPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'coach') setTimeout(scrollChat, 100);
+}
+
+// ─── BOOT: load data from your server ────────────────────────────
+async function loadData() {
+  try {
+    const [ridesRes, ftpRes] = await Promise.all([
+      fetch(API_BASE + '/api/rides'),
+      fetch(API_BASE + '/api/ftp'),
+    ]);
+    if (ridesRes.ok) state.rides = await ridesRes.json();
+    if (ftpRes.ok) {
+      const ftpHistory = await ftpRes.json();
+      if (ftpHistory.length) {
+        state.ftp = ftpHistory[ftpHistory.length - 1].ftp;
+        document.getElementById('header-ftp').textContent = state.ftp;
+      }
+    }
+  } catch {
+    // No server running — load demo data so you can still see the app
+    loadDemoData();
+  }
+  renderHome();
+  renderPlan();
+  renderRides();
+}
+
+function loadDemoData() {
+  const ago = n => { const d = new Date(); d.setDate(d.getDate() - n); return d.toISOString().split('T')[0]; };
+  state.ftp = 248;
+  document.getElementById('header-ftp').textContent = '248';
+  state.rides = [
+    { id:1, name:'Morning Z2', date:ago(1), duration_min:105, avg_power:158, np:163, avg_hr:138, tss:94, completed:true },
+    { id:2, name:'Sweet spot 2×20', date:ago(3), duration_min:80, avg_power:204, np:211, avg_hr:158, tss:121, completed:true },
+    { id:3, name:'Recovery spin', date:ago(4), duration_min:0, avg_power:0, np:0, avg_hr:0, tss:0, completed:false },
+    { id:4, name:'VO₂ max 5×4 min', date:ago(6), duration_min:70, avg_power:224, np:238, avg_hr:172, tss:118, completed:true },
+    { id:5, name:'Long endurance ride', date:ago(8), duration_min:180, avg_power:152, np:158, avg_hr:132, tss:163, completed:true },
+    { id:6, name:'Threshold 2×15', date:ago(10), duration_min:0, avg_power:0, np:0, avg_hr:0, tss:0, completed:false },
+    { id:7, name:'Z2 base ride', date:ago(13), duration_min:90, avg_power:161, np:165, avg_hr:140, tss:84, completed:true },
+  ];
+}
+
+// ─── RENDER: DASHBOARD ───────────────────────────────────────────
+function renderHome() {
+  const done   = state.rides.filter(r => r.completed);
+  const missed = state.rides.filter(r => !r.completed);
+  const ftp    = state.ftp || estimateFTP(done);
+  const tss    = done.slice(0, 7).reduce((s, r) => s + (r.tss || 0), 0);
+  const compliance = state.rides.length
+    ? Math.round(done.length / state.rides.length * 100) : 0;
+
+  let html = '';
+
+  // Sync status bar
+  html += `<div class="sync-banner">
+    <div class="sync-dot"></div>
+    Garmin connected — rides sync automatically after each activity
+  </div>`;
+
+  // Stats grid
+  html += `<div class="stats-row">
+    <div class="stat green">
+      <div class="lbl">FTP</div>
+      <div class="val">${ftp}</div>
+      <div class="sub">watts · ~${(ftp/70).toFixed(1)} w/kg</div>
+    </div>
+    <div class="stat">
+      <div class="lbl">Weekly TSS</div>
+      <div class="val">${tss}</div>
+      <div class="sub">target ~380</div>
+    </div>
+    <div class="stat">
+      <div class="lbl">Compliance</div>
+      <div class="val">${compliance}<span style="font-size:14px;color:var(--text3)">%</span></div>
+      <div class="sub">${done.length} of ${state.rides.length} done</div>
+    </div>
+    <div class="stat">
+      <div class="lbl">Rides logged</div>
+      <div class="val">${done.length}</div>
+      <div class="sub">total sessions</div>
+    </div>
+  </div>`;
+
+  // Power zone distribution
+  const zones = [
+    { lbl:'Z1', pct:12, color:'#4d9fff' },
+    { lbl:'Z2', pct:36, color:'#00b85e' },
+    { lbl:'Z3', pct:18, color:'#f5c518' },
+    { lbl:'Z4', pct:18, color:'#f5a623' },
+    { lbl:'Z5', pct:10, color:'#ff6b35' },
+    { lbl:'Z6', pct:4,  color:'#ff4d4d' },
+    { lbl:'Z7', pct:2,  color:'#cc00ff' },
+  ];
+  html += `<div class="card">
+    <div class="card-title">Power zone distribution</div>
+    <div class="zone-row">
+      ${zones.map(z => `
+        <div class="zone-col">
+          <div class="zone-bar" style="height:${Math.max(4, z.pct * 2)}px;background:${z.color};border-radius:3px 3px 0 0;width:100%"></div>
+          <div class="zone-lbl">${z.lbl}</div>
+        </div>`).join('')}
+    </div>
+    <div style="font-size:10px;color:var(--text3);font-family:var(--mono)">Z1 recovery · Z2 endurance · Z3 tempo · Z4 threshold · Z5–7 high intensity</div>
+  </div>`;
+
+  // Missed session banner
+  if (missed.length) {
+    const names = missed.slice(0, 2).map(r => r.name).join(' and ');
+    html += `<div class="missed-banner">
+      <div class="missed-title">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        ${missed.length} missed session${missed.length > 1 ? 's' : ''} detected
+      </div>
+      <p>I noticed you didn't complete <strong style="color:var(--text)">${names}</strong>. Tell me why and I'll adjust your upcoming plan.</p>
+      <div class="reason-btns">
+        <button class="reason-btn" onclick="reportMissed('fatigue')">Too fatigued</button>
+        <button class="reason-btn" onclick="reportMissed('busy')">Too busy</button>
+        <button class="reason-btn" onclick="reportMissed('illness')">Illness / injury</button>
+        <button class="reason-btn" onclick="reportMissed('motivation')">Low motivation</button>
+      </div>
+    </div>`;
+  }
+
+  // Recent rides list
+  html += `<div class="section-title">Recent rides</div><div class="card">`;
+  state.rides.slice(0, 6).forEach(r => {
+    html += `<div class="ride-item">
+      <div class="ride-dot ${r.completed ? 'done' : 'missed'}"></div>
+      <div class="ride-info">
+        <div class="ride-name">${r.name}</div>
+        <div class="ride-meta">${r.date}${r.completed ? ' · ' + r.duration_min + 'min · TSS ' + r.tss : ' · not completed'}</div>
+      </div>
+      ${r.completed && r.avg_power
+        ? `<div class="ride-power"><div class="pw">${r.avg_power}W</div><div class="pw-lbl">avg pwr</div></div>`
+        : `<span class="badge missed">missed</span>`}
+    </div>`;
+  });
+  html += `</div>`;
+
+  document.getElementById('home-content').innerHTML = html;
+}
+
+// ─── RENDER: TRAINING PLAN ───────────────────────────────────────
+function renderPlan() {
+  const ftp  = state.ftp || 248;
+  const R    = n => Math.round(n);
+  const days = [
+    { day:'Mon', type:'z2',   name:'Z2 endurance',       desc:`${R(ftp*.65)}–${R(ftp*.75)}W · 90 min`,  tss:70  },
+    { day:'Tue', type:'ss',   name:'Sweet spot 2×20 min', desc:`${R(ftp*.88)}–${R(ftp*.94)}W · 80 min`,  tss:105 },
+    { day:'Wed', type:'rest', name:'Recovery spin',       desc:`Easy · 45 min · <${R(ftp*.6)}W`,         tss:25  },
+    { day:'Thu', type:'vo2',  name:'VO₂ max 5×4 min',    desc:`${R(ftp*1.06)}–${R(ftp*1.2)}W · 70 min`, tss:112 },
+    { day:'Fri', type:'z2',   name:'Z2 aerobic base',    desc:`${R(ftp*.65)}–${R(ftp*.75)}W · 2 hrs`,   tss:92  },
+    { day:'Sat', type:'ss',   name:'Long sweet spot',    desc:`${R(ftp*.85)}–${R(ftp*.92)}W · 3 hrs`,   tss:168 },
+    { day:'Sun', type:'rest', name:'Rest day',            desc:'Full recovery — no riding',              tss:0   },
+  ];
+  const totalTSS = days.reduce((s, d) => s + d.tss, 0);
+
+  let html = `<div class="card" style="margin-bottom:12px;">
+    <div class="card-title">This week · FTP focus block</div>
+    <div style="font-size:12px;color:var(--text2);line-height:1.7;">
+      Weekly TSS target: <strong style="color:var(--text)">${totalTSS}</strong><br>
+      Mix of Z2 base, sweet spot intervals, and VO₂ max work. This structure targets a <strong style="color:var(--green)">5–8W FTP gain</strong> over 6 weeks.
+    </div>
+  </div>`;
+
+  days.forEach(d => {
+    html += `<div class="plan-item">
+      <div class="plan-day-lbl">${d.day}</div>
+      <div class="plan-workout">
+        <div class="plan-color ${d.type}"></div>
+        <div style="flex:1;">
+          <div class="plan-name">${d.name}</div>
+          <div class="plan-desc">${d.desc}</div>
+        </div>
+        ${d.tss ? `<div class="plan-tss">${d.tss}<br><span style="font-size:9px;color:var(--text3)">TSS</span></div>` : ''}
+      </div>
+    </div>`;
+  });
+
+  document.getElementById('plan-content').innerHTML = html;
+}
+
+// ─── RENDER: RIDE HISTORY ────────────────────────────────────────
+function renderRides() {
+  if (!state.rides.length) {
+    document.getElementById('rides-content').innerHTML =
+      '<div class="loading-state">No rides yet. Connect Garmin and finish a ride to see it here.</div>';
+    return;
+  }
+
+  let html = '<div class="card">';
+  state.rides.forEach(r => {
+    html += `<div class="ride-item">
+      <div class="ride-dot ${r.completed ? 'done' : 'missed'}"></div>
+      <div class="ride-info">
+        <div class="ride-name">${r.name}</div>
+        <div class="ride-meta">${r.date}${r.completed
+          ? ` · ${r.duration_min}min · ${r.avg_power}W · TSS ${r.tss}`
+          : ' · missed'}</div>
+      </div>
+      ${r.completed && r.avg_power
+        ? `<div class="ride-power"><div class="pw">${r.np || r.avg_power}W</div><div class="pw-lbl">NP</div></div>`
+        : `<span class="badge missed">missed</span>`}
+    </div>`;
+  });
+  html += '</div>';
+  document.getElementById('rides-content').innerHTML = html;
+}
+
+// ─── MISSED SESSION FLOW ─────────────────────────────────────────
+function reportMissed(reason) {
+  const msgs = {
+    fatigue:    'I missed those sessions because I was too fatigued — the hard efforts really caught up with me.',
+    busy:       'I missed them because work and life got in the way this week — no time to ride.',
+    illness:    'I was feeling unwell so I decided not to push through it.',
+    motivation: "I just wasn't feeling motivated and needed a mental break from training.",
+  };
+  // Switch to coach tab and send the message
+  switchPage('coach', document.querySelectorAll('.nav-btn')[3]);
+  setTimeout(() => askClaude(msgs[reason], true), 300);
+}
+
+// ─── CLAUDE COACH CHAT ───────────────────────────────────────────
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  await askClaude(msg, false);
+}
+
+function sendQuick(msg) { askClaude(msg, false); }
+
+async function askClaude(userMsg, isMissed = false) {
+  addUserBubble(userMsg);
+  const typingId = addTyping();
+
+  const ftp = state.ftp || estimateFTP(state.rides.filter(r => r.completed));
+  const rideLog = state.rides.map(r =>
+    r.completed
+      ? `${r.date}: ${r.name} — avg ${r.avg_power}W, NP ${r.np}W, ${r.duration_min}min, TSS ${r.tss}, HR ${r.avg_hr}`
+      : `${r.date}: ${r.name} — MISSED`
+  ).join('\n') || 'No rides logged yet.';
+
+  const system = `You are a concise, expert cycling coach specialising in FTP improvement and power-based training. 
+Current athlete FTP: ${ftp}W.
+Full ride history:
+${rideLog}
+${isMissed
+  ? 'The athlete is explaining why they missed planned sessions. Acknowledge briefly and empathetically, then give a specific restructured plan with adjusted power targets.'
+  : 'Be direct and data-driven. Keep responses short — 3 to 5 sentences max unless asked for detail. No markdown headers.'}`;
+
+  state.chatHistory.push({ role: 'user', content: userMsg });
+
+  try {
+    const res = await fetch(CLAUDE_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system,
+        messages: state.chatHistory.slice(-14),
+      }),
+    });
+
+    const data = await res.json();
+    removeTyping(typingId);
+
+    if (data.content?.[0]?.text) {
+      const reply = data.content[0].text;
+      state.chatHistory.push({ role: 'assistant', content: reply });
+      const quickReplies = isMissed
+        ? ['Show me the updated plan', 'What should I prioritise this week?', 'How do I avoid overtraining?']
+        : [];
+      addAIBubble(reply, quickReplies);
+      if (isMissed) renderPlan();
+    } else {
+      addAIBubble('Hmm, something went wrong. Make sure you\'re using this app through Claude.ai.');
+    }
+  } catch {
+    removeTyping(typingId);
+    addAIBubble('Could not reach the AI coach. Open this app inside Claude.ai to activate it.');
+  }
+}
+
+// ─── CHAT UI HELPERS ─────────────────────────────────────────────
+function addUserBubble(text) {
+  const el = document.createElement('div');
+  el.className = 'msg user';
+  el.innerHTML = `<div class="av me">Me</div><div class="bubble user">${escHtml(text)}</div>`;
+  document.getElementById('chat-messages').appendChild(el);
+  scrollChat();
+}
+
+function addAIBubble(text, quickReplies = []) {
+  const formatted = text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>');
+  const qrs = quickReplies.length
+    ? `<div class="quick-replies">${quickReplies.map(q =>
+        `<div class="qr" onclick="sendQuick('${q.replace(/'/g, "\\'")}')">${q}</div>`
+      ).join('')}</div>`
+    : '';
+  const el = document.createElement('div');
+  el.className = 'msg';
+  el.innerHTML = `<div class="av ai">AI</div><div><div class="bubble ai">${formatted}</div>${qrs}</div>`;
+  document.getElementById('chat-messages').appendChild(el);
+  scrollChat();
+}
+
+function addTyping() {
+  const id = 'typ-' + Date.now();
+  const el = document.createElement('div');
+  el.className = 'msg'; el.id = id;
+  el.innerHTML = `<div class="av ai">AI</div><div class="bubble ai"><div class="typing"><span></span><span></span><span></span></div></div>`;
+  document.getElementById('chat-messages').appendChild(el);
+  scrollChat();
+  return id;
+}
+
+function removeTyping(id) { document.getElementById(id)?.remove(); }
+function scrollChat() { const c = document.getElementById('chat-messages'); c.scrollTop = c.scrollHeight; }
+function escHtml(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function estimateFTP(rides) {
+  if (!rides.length) return 220;
+  return Math.round(Math.max(...rides.map(r => r.np || r.avg_power || 0)) * 0.95);
+}
+
+// ─── PWA: register service worker ────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(console.error);
+}
+
+// ─── START ───────────────────────────────────────────────────────
+loadData();
+</script>
+</body>
+</html>

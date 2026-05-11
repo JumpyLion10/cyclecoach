@@ -1,0 +1,16 @@
+{
+  "name": "cyclecoach",
+  "version": "1.0.0",
+  "description": "AI cycling coach with Garmin auto-sync",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.3",
+    "@supabase/supabase-js": "^2.43.4"
+  }
+}
