@@ -4,199 +4,377 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="CycleCoach">
-<meta name="theme-color" content="#0a0a0a">
+<meta name="theme-color" content="#ffffff">
 <title>CycleCoach</title>
 <link rel="manifest" href="/manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:#0a0a0a; --s1:#111111; --s2:#181818; --s3:#222222;
-  --b1:#2a2a2a; --b2:#333333;
-  --t1:#f0f0f0; --t2:#888888; --t3:#444444;
-  --accent:#c8ff00; --acc-dim:#8aaf00; --acc-bg:#161f00;
-  --red:#ff4444; --red-bg:#1f0a0a;
-  --amber:#ffaa00; --amb-bg:#1f1500;
-  --blue:#4488ff;
-  --safe-t:env(safe-area-inset-top,0px);
-  --safe-b:env(safe-area-inset-bottom,0px);
-  --mono:'Geist Mono',monospace;
-  --serif:'Instrument Serif',serif;
-  --sans:'Geist',sans-serif;
-  --r:14px; --r-sm:8px;
+  --bg:       #f5f5f7;
+  --white:    #ffffff;
+  --s1:       #f0f0f2;
+  --s2:       #e8e8ec;
+  --b1:       #e0e0e4;
+  --b2:       #d0d0d5;
+  --t1:       #0a0a0a;
+  --t2:       #555560;
+  --t3:       #9999a8;
+  --blue:     #1a73e8;
+  --blue-bg:  #e8f0fd;
+  --green:    #1db954;
+  --grn-bg:   #e6f7ec;
+  --red:      #e53935;
+  --red-bg:   #fdecea;
+  --amber:    #f59e0b;
+  --amb-bg:   #fef3c7;
+  --purple:   #7c3aed;
+  --purp-bg:  #f0ebff;
+  --safe-t:   env(safe-area-inset-top,    0px);
+  --safe-b:   env(safe-area-inset-bottom, 0px);
+  --mono:     'DM Mono', monospace;
+  --sans:     'DM Sans', sans-serif;
+  --r:        16px;
+  --r-sm:     10px;
+  --shadow:   0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
 }
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-html,body{height:100%;background:var(--bg);color:var(--t1);font-family:var(--sans);font-size:15px;overflow:hidden;-webkit-font-smoothing:antialiased;}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+html,body { height:100%; background:var(--bg); color:var(--t1); font-family:var(--sans); font-size:15px; overflow:hidden; -webkit-font-smoothing:antialiased; }
 
 /* ── LAYOUT ── */
-.app{display:flex;flex-direction:column;height:100vh;height:100dvh;}
-.header{padding:calc(var(--safe-t) + 16px) 20px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--bg);border-bottom:1px solid var(--b1);}
-.header-title{font-family:var(--serif);font-size:22px;font-style:italic;color:var(--t1);}
-.header-pill{background:var(--acc-bg);border:1px solid var(--acc-dim);border-radius:20px;padding:5px 12px;font-family:var(--mono);font-size:11px;color:var(--accent);}
-.pages{flex:1;overflow:hidden;position:relative;}
-.page{position:absolute;inset:0;overflow-y:auto;display:none;-webkit-overflow-scrolling:touch;}
-.page::-webkit-scrollbar{display:none;}
-.page.active{display:block;}
-#page-coach.active{display:flex;flex-direction:column;}
+.app { display:flex; flex-direction:column; height:100vh; height:100dvh; }
+
+.header {
+  padding: calc(var(--safe-t) + 14px) 20px 12px;
+  display:flex; align-items:center; justify-content:space-between;
+  flex-shrink:0; background:var(--white);
+  border-bottom:1px solid var(--b1);
+}
+.header-title { font-size:20px; font-weight:600; color:var(--t1); letter-spacing:-0.02em; }
+.header-right { position:relative; }
+
+/* Profile button */
+.profile-btn {
+  width:36px; height:36px; border-radius:50%; overflow:hidden;
+  border:2px solid var(--b1); cursor:pointer; background:var(--s1);
+  display:flex; align-items:center; justify-content:center;
+  transition:border-color 0.2s; flex-shrink:0;
+}
+.profile-btn:active { border-color:var(--blue); }
+.profile-btn img { width:100%; height:100%; object-fit:cover; display:none; }
+.profile-btn .initials { font-size:13px; font-weight:600; color:var(--t2); }
+
+/* Dropdown */
+.dropdown {
+  position:absolute; top:44px; right:0; width:200px;
+  background:var(--white); border:1px solid var(--b1); border-radius:var(--r-sm);
+  box-shadow:var(--shadow-md); z-index:200; overflow:hidden;
+  opacity:0; pointer-events:none; transform:translateY(-6px);
+  transition:opacity 0.18s, transform 0.18s;
+}
+.dropdown.open { opacity:1; pointer-events:all; transform:none; }
+.dd-item {
+  display:flex; align-items:center; gap:10px; padding:12px 16px;
+  font-size:14px; color:var(--t1); cursor:pointer; border-bottom:1px solid var(--b1);
+  transition:background 0.12s;
+}
+.dd-item:last-child { border-bottom:none; }
+.dd-item:active { background:var(--s1); }
+.dd-item svg { width:16px; height:16px; stroke:var(--t2); fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+.dd-item.danger { color:var(--red); }
+.dd-item.danger svg { stroke:var(--red); }
+
+.pages { flex:1; overflow:hidden; position:relative; }
+.page { position:absolute; inset:0; overflow-y:auto; display:none; -webkit-overflow-scrolling:touch; }
+.page::-webkit-scrollbar { display:none; }
+.page.active { display:block; }
+#page-coach.active { display:flex; flex-direction:column; }
 
 /* ── NAV ── */
-.nav{display:flex;background:var(--s1);border-top:1px solid var(--b1);padding-bottom:var(--safe-b);flex-shrink:0;}
-.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 0 10px;border:none;background:none;color:var(--t3);cursor:pointer;font-family:var(--sans);transition:color 0.2s;position:relative;}
-.nav-btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transition:transform 0.2s;}
-.nav-btn span{font-size:10px;font-family:var(--mono);letter-spacing:0.06em;}
-.nav-btn.active{color:var(--accent);}
-.nav-btn.active svg{transform:translateY(-1px);}
-.n-ind{position:absolute;top:0;left:50%;transform:translateX(-50%);width:20px;height:2px;background:var(--accent);border-radius:0 0 2px 2px;opacity:0;transition:opacity 0.2s;}
-.nav-btn.active .n-ind{opacity:1;}
+.nav {
+  display:flex; background:var(--white);
+  border-top:1px solid var(--b1);
+  padding-bottom:var(--safe-b);
+  flex-shrink:0;
+}
+.nav-btn {
+  flex:1; display:flex; flex-direction:column; align-items:center;
+  gap:3px; padding:10px 0 8px; border:none; background:none;
+  color:var(--t3); cursor:pointer; font-family:var(--sans);
+  transition:color 0.15s; position:relative;
+}
+.nav-btn svg { width:22px; height:22px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.nav-btn span { font-size:10px; font-weight:500; }
+.nav-btn.active { color:var(--blue); }
+.n-ind { position:absolute; top:0; left:50%; transform:translateX(-50%); width:24px; height:2.5px; background:var(--blue); border-radius:0 0 3px 3px; opacity:0; transition:opacity 0.15s; }
+.nav-btn.active .n-ind { opacity:1; }
 
 /* ── SHARED ── */
-.label{font-family:var(--mono);font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:8px;}
-.card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:16px;margin:0 20px 10px;}
-.s-head{padding:16px 20px 8px;display:flex;align-items:center;justify-content:space-between;}
-.s-head h2{font-size:11px;font-family:var(--mono);color:var(--t3);text-transform:uppercase;letter-spacing:0.12em;}
-.chip{display:inline-flex;align-items:center;padding:4px 10px;border-radius:20px;font-family:var(--mono);font-size:10px;}
-.chip-g{background:var(--acc-bg);color:var(--accent);border:1px solid #2d3f00;}
-.chip-r{background:var(--red-bg);color:var(--red);border:1px solid #3f1010;}
-.chip-a{background:var(--amb-bg);color:var(--amber);border:1px solid #3f2800;}
+.card {
+  background:var(--white); border-radius:var(--r);
+  box-shadow:var(--shadow); margin:0 16px 12px; overflow:hidden;
+}
+.card-pad { padding:16px; }
+.s-head { padding:16px 16px 8px; display:flex; align-items:center; justify-content:space-between; }
+.s-head h2 { font-size:13px; font-weight:600; color:var(--t1); letter-spacing:-0.01em; }
+.s-head a { font-size:12px; color:var(--blue); font-weight:500; cursor:pointer; }
+.label { font-size:11px; font-weight:500; color:var(--t3); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px; }
+.chip { display:inline-flex; align-items:center; padding:3px 9px; border-radius:20px; font-size:11px; font-weight:500; }
+.chip-b { background:var(--blue-bg); color:var(--blue); }
+.chip-g { background:var(--grn-bg); color:var(--green); }
+.chip-r { background:var(--red-bg); color:var(--red); }
+.chip-a { background:var(--amb-bg); color:var(--amber); }
+.chip-p { background:var(--purp-bg); color:var(--purple); }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  display:flex; flex-direction:column; align-items:center;
+  justify-content:center; padding:60px 32px; text-align:center;
+}
+.empty-icon { width:56px; height:56px; border-radius:50%; background:var(--s1); display:flex; align-items:center; justify-content:center; margin-bottom:16px; }
+.empty-icon svg { width:26px; height:26px; stroke:var(--t3); fill:none; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+.empty-title { font-size:17px; font-weight:600; color:var(--t1); margin-bottom:6px; }
+.empty-sub { font-size:14px; color:var(--t2); line-height:1.6; margin-bottom:24px; }
+
+/* ── UPLOAD BUTTON ── */
+.upload-btn {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:12px 24px; border-radius:100px;
+  background:var(--blue); color:white; border:none;
+  font-size:14px; font-weight:600; font-family:var(--sans);
+  cursor:pointer; transition:opacity 0.15s; box-shadow:var(--shadow);
+}
+.upload-btn:active { opacity:0.85; }
+.upload-btn svg { width:16px; height:16px; stroke:white; fill:none; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
+.upload-btn-sm {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:8px 16px; border-radius:100px;
+  background:var(--blue-bg); color:var(--blue); border:none;
+  font-size:13px; font-weight:500; font-family:var(--sans); cursor:pointer;
+}
+.upload-btn-sm svg { width:14px; height:14px; stroke:var(--blue); fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
 
 /* ── CHAT ── */
-.chat-scroll{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:14px;}
-.chat-scroll::-webkit-scrollbar{display:none;}
-.msg{display:flex;gap:10px;animation:fu 0.22s ease;}
-.msg.user{flex-direction:row-reverse;}
-@keyframes fu{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
-.av{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;font-weight:500;margin-top:2px;}
-.av.ai{background:var(--acc-bg);color:var(--accent);border:1px solid #2d3f00;}
-.av.me{background:var(--s3);color:var(--t2);border:1px solid var(--b2);}
-.bubble{max-width:78%;padding:11px 14px;font-size:14px;line-height:1.65;}
-.bubble.ai{background:var(--s1);border:1px solid var(--b1);border-radius:14px 14px 14px 3px;color:var(--t1);}
-.bubble.user{background:var(--acc-bg);border:1px solid #2d3f00;border-radius:14px 14px 3px 14px;color:#d4ff66;}
-.bubble strong{color:var(--accent);font-weight:500;}
-.bubble ul{margin:8px 0 4px 16px;}
-.bubble li{margin-bottom:4px;font-size:13px;color:var(--t2);}
-.qrs{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
-.qr{padding:6px 12px;border:1px solid var(--b2);border-radius:20px;font-size:12px;color:var(--t2);font-family:var(--mono);cursor:pointer;background:var(--s2);transition:all 0.15s;}
-.qr:active{background:var(--acc-bg);color:var(--accent);border-color:var(--acc-dim);}
-.t-bub{display:flex;align-items:center;gap:5px;padding:10px 12px;}
-.t-bub span{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:blink 1.4s infinite;opacity:.3;}
-.t-bub span:nth-child(2){animation-delay:.2s;}
-.t-bub span:nth-child(3){animation-delay:.4s;}
+.chat-scroll { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:12px; }
+.chat-scroll::-webkit-scrollbar { display:none; }
+.msg { display:flex; gap:8px; animation:fu 0.2s ease; }
+.msg.user { flex-direction:row-reverse; }
+@keyframes fu { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:none} }
+.av { width:28px; height:28px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:600; margin-top:2px; }
+.av.ai { background:var(--blue); color:white; }
+.av.me { background:var(--s2); color:var(--t2); font-family:var(--mono); }
+.bubble { max-width:78%; padding:10px 14px; font-size:14px; line-height:1.65; }
+.bubble.ai { background:var(--white); border:1px solid var(--b1); border-radius:16px 16px 16px 3px; color:var(--t1); box-shadow:var(--shadow); }
+.bubble.user { background:var(--blue); border-radius:16px 16px 3px 16px; color:white; }
+.bubble strong { font-weight:600; }
+.bubble.user strong { color:white; }
+.bubble ul { margin:6px 0 2px 16px; }
+.bubble li { margin-bottom:3px; font-size:13px; }
+.qrs { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+.qr { padding:6px 12px; border:1.5px solid var(--b1); border-radius:20px; font-size:12px; color:var(--blue); font-weight:500; cursor:pointer; background:var(--white); transition:all 0.12s; box-shadow:var(--shadow); }
+.qr:active { background:var(--blue-bg); border-color:var(--blue); }
+.t-bub { display:flex; align-items:center; gap:4px; padding:4px 2px; }
+.t-bub span { width:6px; height:6px; border-radius:50%; background:var(--t3); animation:blink 1.4s infinite; }
+.t-bub span:nth-child(2){animation-delay:.2s}
+.t-bub span:nth-child(3){animation-delay:.4s}
 @keyframes blink{0%,80%,100%{opacity:.3}40%{opacity:1}}
-.chat-bar{padding:10px 20px;padding-bottom:calc(10px + var(--safe-b));background:var(--s1);border-top:1px solid var(--b1);display:flex;gap:10px;align-items:flex-end;flex-shrink:0;}
-.chat-input{flex:1;background:var(--s2);border:1px solid var(--b1);border-radius:20px;padding:11px 16px;font-size:14px;color:var(--t1);font-family:var(--sans);outline:none;resize:none;max-height:100px;line-height:1.4;transition:border-color 0.2s;}
-.chat-input:focus{border-color:var(--b2);}
-.chat-input::placeholder{color:var(--t3);}
-.send{width:42px;height:42px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform 0.15s;}
-.send:active{transform:scale(0.92);}
-.send svg{width:17px;height:17px;stroke:#000;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+.chat-bar { padding:10px 16px; padding-bottom:calc(10px + var(--safe-b)); background:var(--white); border-top:1px solid var(--b1); display:flex; gap:10px; align-items:flex-end; flex-shrink:0; }
+.chat-input { flex:1; background:var(--s1); border:1.5px solid var(--b1); border-radius:20px; padding:10px 16px; font-size:14px; color:var(--t1); font-family:var(--sans); outline:none; resize:none; max-height:100px; line-height:1.4; transition:border-color 0.2s; }
+.chat-input:focus { border-color:var(--blue); background:var(--white); }
+.chat-input::placeholder { color:var(--t3); }
+.send { width:40px; height:40px; border-radius:50%; background:var(--blue); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:transform 0.12s; }
+.send:active { transform:scale(0.9); }
+.send svg { width:16px; height:16px; stroke:white; fill:none; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
 
 /* ── DASHBOARD ── */
-#page-dash{padding-bottom:24px;}
-.ftp-hero{margin:16px 20px 10px;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:20px;position:relative;overflow:hidden;}
-.ftp-hero::before{content:'';position:absolute;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,#1a2200 0%,transparent 70%);pointer-events:none;}
-.ftp-big{font-family:var(--serif);font-size:72px;line-height:1;color:var(--accent);font-style:italic;}
-.ftp-unit{font-family:var(--mono);font-size:12px;color:var(--acc-dim);margin-top:2px;}
-.ftp-side{text-align:right;}
-.ftp-wpkg{font-family:var(--serif);font-size:22px;color:var(--t1);font-style:italic;}
-.ftp-wlbl{font-family:var(--mono);font-size:10px;color:var(--t3);margin-top:2px;}
-.ftp-row{display:flex;align-items:flex-end;justify-content:space-between;}
-.edit-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border:1px solid var(--b2);border-radius:20px;background:none;font-size:11px;font-family:var(--mono);color:var(--t2);cursor:pointer;margin-top:14px;transition:all 0.15s;}
-.edit-btn:active{border-color:var(--accent);color:var(--accent);}
-.edit-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;}
+#page-dash { padding-bottom:24px; background:var(--bg); }
 
-.metrics-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:0 20px 10px;}
-.mc{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r-sm);padding:12px 10px;text-align:center;}
-.mc .ml{font-family:var(--mono);font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:5px;}
-.mc .mv{font-family:var(--serif);font-size:26px;font-style:italic;line-height:1;}
-.mc .ms{font-size:10px;color:var(--t3);font-family:var(--mono);margin-top:3px;}
-.mc.ctl .mv{color:var(--blue);}
-.mc.atl .mv{color:var(--amber);}
-.mc.tsb .mv{color:var(--accent);}
+.ftp-card {
+  margin:16px 16px 12px;
+  background:var(--blue); border-radius:var(--r);
+  padding:20px; position:relative; overflow:hidden;
+  box-shadow:0 4px 20px rgba(26,115,232,0.35);
+}
+.ftp-card::before { content:''; position:absolute; top:-60px; right:-60px; width:200px; height:200px; border-radius:50%; background:rgba(255,255,255,0.08); pointer-events:none; }
+.ftp-card::after  { content:''; position:absolute; bottom:-40px; left:-20px; width:140px; height:140px; border-radius:50%; background:rgba(255,255,255,0.05); pointer-events:none; }
+.ftp-label { font-size:11px; font-weight:500; color:rgba(255,255,255,0.7); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px; }
+.ftp-row { display:flex; align-items:flex-end; justify-content:space-between; }
+.ftp-big { font-size:64px; font-weight:300; color:white; line-height:1; letter-spacing:-0.03em; }
+.ftp-unit { font-size:18px; color:rgba(255,255,255,0.7); font-weight:300; margin-bottom:8px; }
+.ftp-wpkg { font-size:22px; font-weight:600; color:white; }
+.ftp-wlbl { font-size:11px; color:rgba(255,255,255,0.6); font-weight:400; }
+.ftp-meta { font-size:12px; color:rgba(255,255,255,0.6); margin-top:10px; }
+.ftp-edit { display:inline-flex; align-items:center; gap:5px; margin-top:12px; padding:6px 14px; background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.3); border-radius:20px; font-size:12px; color:white; font-weight:500; cursor:pointer; transition:background 0.15s; }
+.ftp-edit:active { background:rgba(255,255,255,0.28); }
+.ftp-edit svg { width:12px; height:12px; stroke:white; fill:none; stroke-width:2; }
 
-.week-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 20px 10px;}
-.wc{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r-sm);padding:12px 14px;}
-.wc .wl{font-family:var(--mono);font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;}
-.wc .wv{font-size:20px;font-weight:500;color:var(--t1);}
-.wc .ws{font-size:10px;color:var(--t3);font-family:var(--mono);margin-top:2px;}
+.metrics-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin:0 16px 12px; }
+.mc { background:var(--white); border-radius:var(--r-sm); padding:14px 10px; text-align:center; box-shadow:var(--shadow); }
+.mc .ml { font-size:10px; font-weight:500; color:var(--t3); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:5px; }
+.mc .mv { font-size:26px; font-weight:300; color:var(--t1); letter-spacing:-0.02em; }
+.mc .ms { font-size:10px; color:var(--t3); margin-top:2px; }
+.mc.ctl .mv { color:var(--blue); }
+.mc.atl .mv { color:var(--red); }
+.mc.tsb .mv { color:var(--green); }
 
-.bar-chart{display:flex;align-items:flex-end;gap:4px;height:52px;}
-.bc{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end;}
-.b{width:100%;border-radius:3px 3px 0 0;background:var(--s3);min-height:3px;}
-.b.today{background:var(--accent);}
-.bd{font-family:var(--mono);font-size:8px;color:var(--t3);}
+.week-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 16px 12px; }
+.wc { background:var(--white); border-radius:var(--r-sm); padding:14px; box-shadow:var(--shadow); }
+.wc .wl { font-size:11px; font-weight:500; color:var(--t3); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:4px; }
+.wc .wv { font-size:22px; font-weight:600; color:var(--t1); letter-spacing:-0.02em; }
+.wc .ws { font-size:11px; color:var(--t3); margin-top:2px; }
 
-.goal-card{margin:0 20px 10px;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:16px;}
-.goal-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;}
-.goal-name{font-size:14px;font-weight:500;color:var(--t1);}
-.goal-date{font-family:var(--mono);font-size:10px;color:var(--t3);margin-top:3px;}
-.prog-bg{height:3px;background:var(--s3);border-radius:2px;overflow:hidden;}
-.prog-fill{height:100%;background:var(--accent);border-radius:2px;transition:width 0.6s ease;}
-.prog-meta{display:flex;justify-content:space-between;margin-top:6px;font-family:var(--mono);font-size:10px;color:var(--t3);}
+.bar-chart { display:flex; align-items:flex-end; gap:5px; height:56px; }
+.bc { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; height:100%; justify-content:flex-end; }
+.b { width:100%; border-radius:4px 4px 0 0; background:var(--s2); min-height:3px; }
+.b.has { background:var(--blue-bg); }
+.b.today { background:var(--blue); }
+.bd { font-size:9px; color:var(--t3); font-weight:500; }
+
+.goal-card { margin:0 16px 12px; background:var(--white); border-radius:var(--r); padding:16px; box-shadow:var(--shadow); }
+.goal-hd { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:12px; gap:8px; }
+.goal-name { font-size:15px; font-weight:600; color:var(--t1); }
+.goal-date { font-size:12px; color:var(--t2); margin-top:2px; }
+.prog-bg { height:6px; background:var(--s2); border-radius:3px; overflow:hidden; }
+.prog-fill { height:100%; background:var(--blue); border-radius:3px; transition:width 0.6s ease; }
+.prog-meta { display:flex; justify-content:space-between; margin-top:6px; font-size:11px; color:var(--t3); font-weight:500; }
 
 /* ── MODAL ── */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:flex;align-items:flex-end;z-index:100;opacity:0;pointer-events:none;transition:opacity 0.25s;}
-.overlay.open{opacity:1;pointer-events:all;}
-.modal{width:100%;background:var(--s1);border-radius:20px 20px 0 0;padding:24px 20px;padding-bottom:calc(24px + var(--safe-b));border-top:1px solid var(--b1);transform:translateY(20px);transition:transform 0.25s;}
-.overlay.open .modal{transform:none;}
-.modal h2{font-family:var(--serif);font-size:20px;font-style:italic;color:var(--t1);margin-bottom:20px;}
-.field{margin-bottom:16px;}
-.field label{font-family:var(--mono);font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:0.1em;display:block;margin-bottom:8px;}
-.field input{width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r-sm);padding:12px 14px;font-size:15px;color:var(--t1);font-family:var(--sans);outline:none;transition:border-color 0.2s;}
-.field input:focus{border-color:var(--accent);}
-.m-btn{width:100%;padding:14px;border-radius:var(--r-sm);background:var(--accent);border:none;font-size:15px;font-family:var(--sans);font-weight:500;color:#000;cursor:pointer;}
-.m-btn:active{opacity:0.85;}
+.overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); display:flex; align-items:flex-end; z-index:300; opacity:0; pointer-events:none; transition:opacity 0.22s; }
+.overlay.open { opacity:1; pointer-events:all; }
+.modal { width:100%; background:var(--white); border-radius:20px 20px 0 0; padding:24px 20px; padding-bottom:calc(24px + var(--safe-b)); transform:translateY(20px); transition:transform 0.22s; }
+.overlay.open .modal { transform:none; }
+.modal-handle { width:36px; height:4px; background:var(--b2); border-radius:2px; margin:0 auto 20px; }
+.modal h2 { font-size:19px; font-weight:600; color:var(--t1); margin-bottom:20px; letter-spacing:-0.02em; }
+.field { margin-bottom:16px; }
+.field label { font-size:12px; font-weight:500; color:var(--t2); display:block; margin-bottom:7px; }
+.field input { width:100%; background:var(--s1); border:1.5px solid var(--b1); border-radius:10px; padding:12px 14px; font-size:15px; color:var(--t1); font-family:var(--sans); outline:none; transition:border-color 0.2s; }
+.field input:focus { border-color:var(--blue); background:var(--white); }
+.m-save { width:100%; padding:15px; border-radius:12px; background:var(--blue); border:none; font-size:16px; font-family:var(--sans); font-weight:600; color:white; cursor:pointer; margin-top:4px; transition:opacity 0.15s; }
+.m-save:active { opacity:0.85; }
+.m-cancel { width:100%; padding:12px; border-radius:12px; background:none; border:none; font-size:15px; font-family:var(--sans); color:var(--t2); cursor:pointer; margin-top:8px; }
+
+/* Upload modal */
+.upload-zone { border:2px dashed var(--b1); border-radius:var(--r-sm); padding:32px 20px; text-align:center; cursor:pointer; transition:all 0.2s; }
+.upload-zone:hover, .upload-zone.drag { border-color:var(--blue); background:var(--blue-bg); }
+.upload-zone-icon { width:44px; height:44px; background:var(--blue-bg); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; }
+.upload-zone-icon svg { width:22px; height:22px; stroke:var(--blue); fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+.upload-zone p { font-size:14px; font-weight:500; color:var(--t1); margin-bottom:4px; }
+.upload-zone span { font-size:12px; color:var(--t3); }
+.upload-formats { display:flex; gap:8px; justify-content:center; margin-top:12px; }
+.fmt-chip { padding:4px 10px; background:var(--s1); border-radius:20px; font-size:11px; font-weight:500; color:var(--t2); font-family:var(--mono); }
+.upload-progress { margin-top:16px; }
+.prog-item { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--b1); font-size:13px; color:var(--t1); }
+.prog-item:last-child { border:none; }
+.prog-item svg { width:16px; height:16px; flex-shrink:0; }
+.prog-item .ok { stroke:var(--green); fill:none; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
+.prog-item .err { stroke:var(--red); fill:none; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
 
 /* ── CALENDAR ── */
-#page-cal{padding-bottom:24px;}
-.month-nav{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 10px;}
-.month-name{font-family:var(--serif);font-size:22px;font-style:italic;color:var(--t1);}
-.m-btns{display:flex;gap:8px;}
-.m-btn-nav{width:32px;height:32px;border-radius:50%;background:var(--s2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;cursor:pointer;}
-.m-btn-nav svg{width:14px;height:14px;stroke:var(--t2);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+#page-cal { background:var(--bg); padding-bottom:24px; }
 
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);margin:0 20px;border:1px solid var(--b1);border-radius:var(--r);overflow:hidden;}
-.dow{background:var(--s2);text-align:center;font-family:var(--mono);font-size:9px;color:var(--t3);padding:8px 0;letter-spacing:0.06em;}
-.cd{min-height:52px;border-top:1px solid var(--b1);border-right:1px solid var(--b1);padding:6px 5px;cursor:pointer;transition:background 0.15s;background:var(--s1);}
-.cd:nth-child(7n){border-right:none;}
-.cd:hover{background:var(--s2);}
-.cd.empty{background:var(--bg);cursor:default;}
-.cd.today{background:var(--acc-bg);}
-.cd.today .dn{color:var(--accent);}
-.dn{font-family:var(--mono);font-size:11px;color:var(--t2);margin-bottom:3px;}
-.dot{width:5px;height:5px;border-radius:50%;margin:1px auto 0;}
-.dot.ride{background:var(--accent);}
-.dot.missed{background:var(--red);}
-.dot.planned{background:var(--blue);}
-.cal-tss{font-family:var(--mono);font-size:8px;color:var(--t3);text-align:center;margin-top:2px;}
+.month-nav { display:flex; align-items:center; justify-content:space-between; padding:16px 16px 10px; background:var(--white); border-bottom:1px solid var(--b1); }
+.month-name { font-size:18px; font-weight:600; color:var(--t1); letter-spacing:-0.02em; }
+.m-btns { display:flex; gap:6px; }
+.m-btn-nav { width:32px; height:32px; border-radius:50%; background:var(--s1); border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+.m-btn-nav svg { width:14px; height:14px; stroke:var(--t2); fill:none; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
 
-.detail-wrap{margin:12px 20px 0;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);overflow:hidden;}
-.detail-hd{padding:14px 16px;border-bottom:1px solid var(--b1);display:flex;align-items:flex-start;justify-content:space-between;}
-.detail-name{font-size:16px;font-weight:500;color:var(--t1);}
-.detail-date{font-family:var(--mono);font-size:11px;color:var(--t3);margin-top:3px;}
-.close-btn{width:28px;height:28px;border-radius:50%;background:var(--s2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
-.close-btn svg{width:13px;height:13px;stroke:var(--t2);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
-.map-box{height:140px;background:var(--s2);position:relative;overflow:hidden;}
-.map-box svg{position:absolute;inset:0;width:100%;height:100%;}
-.map-tag{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.7);border-radius:6px;padding:4px 8px;font-family:var(--mono);font-size:10px;color:var(--t2);}
-.d-stats{display:grid;grid-template-columns:repeat(3,1fr);}
-.ds{padding:12px 8px;border-right:1px solid var(--b1);border-top:1px solid var(--b1);text-align:center;}
-.ds:nth-child(3n){border-right:none;}
-.ds .dv{font-family:var(--mono);font-size:14px;color:var(--t1);font-weight:500;}
-.ds .dl{font-family:var(--mono);font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:0.06em;margin-top:3px;}
+/* Week day strip like Garmin */
+.week-strip { background:var(--white); padding:8px 16px 0; border-bottom:1px solid var(--b1); }
+.dow-row { display:grid; grid-template-columns:repeat(7,1fr); }
+.dow-cell { text-align:center; font-size:11px; font-weight:500; color:var(--t3); padding-bottom:8px; letter-spacing:0.02em; }
 
-.miss-box{margin:10px 20px 0;background:var(--red-bg);border:1px solid #3f1010;border-radius:var(--r);padding:14px 16px;}
-.miss-box h3{font-size:14px;color:var(--red);margin-bottom:6px;display:flex;align-items:center;gap:6px;}
-.miss-box h3 svg{width:14px;height:14px;stroke:var(--red);fill:none;stroke-width:2;flex-shrink:0;}
-.miss-box p{font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:10px;}
-.r-row{display:flex;flex-wrap:wrap;gap:6px;}
-.r-btn{padding:6px 12px;border:1px solid #3f1010;border-radius:20px;font-size:11px;font-family:var(--mono);color:var(--red);background:transparent;cursor:pointer;}
-.r-btn:active{background:#2a0a0a;}
+/* Activity list — Garmin-style cards */
+.activity-month { padding:12px 0; }
+.act-card {
+  background:var(--white); margin:0 16px 10px;
+  border-radius:var(--r); overflow:hidden; box-shadow:var(--shadow);
+  cursor:pointer; transition:box-shadow 0.15s;
+}
+.act-card:active { box-shadow:var(--shadow-md); }
+.act-header { padding:14px 16px 10px; display:flex; align-items:flex-start; justify-content:space-between; }
+.act-title { font-size:15px; font-weight:600; color:var(--t1); letter-spacing:-0.01em; }
+.act-sub { font-size:12px; color:var(--t2); margin-top:2px; }
+.act-map { height:160px; background:#e8f0e8; position:relative; overflow:hidden; }
+.act-map svg { position:absolute; inset:0; width:100%; height:100%; }
+.act-map-overlay { position:absolute; bottom:10px; right:10px; background:rgba(255,255,255,0.92); border-radius:8px; padding:5px 10px; font-size:11px; font-weight:500; color:var(--t1); box-shadow:var(--shadow); }
+.act-stats { display:grid; grid-template-columns:repeat(4,1fr); border-top:1px solid var(--b1); }
+.as { padding:10px 6px; text-align:center; border-right:1px solid var(--b1); }
+.as:last-child { border-right:none; }
+.as .av2 { font-size:14px; font-weight:600; color:var(--t1); letter-spacing:-0.01em; }
+.as .al { font-size:9px; color:var(--t3); font-weight:500; text-transform:uppercase; letter-spacing:0.04em; margin-top:2px; }
 
-.spinner{width:18px;height:18px;border:2px solid var(--b2);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg)}}
-.center{display:flex;align-items:center;justify-content:center;padding:60px;}
+/* Missed card */
+.missed-card { background:var(--white); margin:0 16px 10px; border-radius:var(--r); overflow:hidden; box-shadow:var(--shadow); border-left:3px solid var(--red); }
+.missed-header { padding:14px 16px; display:flex; align-items:center; justify-content:space-between; }
+.missed-title { font-size:14px; font-weight:600; color:var(--red); }
+.missed-sub { font-size:12px; color:var(--t2); margin-top:2px; }
+.missed-body { padding:0 16px 14px; }
+.missed-body p { font-size:13px; color:var(--t2); line-height:1.6; margin-bottom:10px; }
+.r-row { display:flex; flex-wrap:wrap; gap:6px; }
+.r-btn { padding:6px 12px; border:1.5px solid var(--b1); border-radius:20px; font-size:12px; font-weight:500; color:var(--t1); background:var(--s1); cursor:pointer; transition:all 0.12s; }
+.r-btn:active { background:var(--red-bg); border-color:var(--red); color:var(--red); }
+
+/* Day header in list */
+.day-header { padding:6px 16px; display:flex; align-items:center; gap:10px; }
+.day-header .dh-date { font-size:12px; font-weight:600; color:var(--t3); text-transform:uppercase; letter-spacing:0.06em; }
+.day-header .dh-line { flex:1; height:1px; background:var(--b1); }
+
+/* Calendar mini grid */
+.mini-cal { padding:10px 16px; }
+.mini-row { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; margin-bottom:3px; }
+.mini-day {
+  aspect-ratio:1; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-size:12px; font-weight:400; color:var(--t2); cursor:pointer; transition:all 0.12s;
+  position:relative; flex-direction:column;
+}
+.mini-day.has-ride::after { content:''; position:absolute; bottom:3px; left:50%; transform:translateX(-50%); width:4px; height:4px; border-radius:50%; background:var(--blue); }
+.mini-day.has-missed::after { background:var(--red); }
+.mini-day.today { background:var(--blue); color:white; font-weight:600; }
+.mini-day.today::after { display:none; }
+.mini-day.selected { background:var(--blue-bg); color:var(--blue); font-weight:600; }
+.mini-day.other-month { color:var(--b2); }
+.mini-day:active { background:var(--s2); }
+
+/* Settings page */
+#page-settings { background:var(--bg); padding-bottom:24px; }
+.settings-section { margin:16px 16px 0; }
+.settings-section h3 { font-size:12px; font-weight:600; color:var(--t3); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px; padding:0 4px; }
+.settings-card { background:var(--white); border-radius:var(--r); box-shadow:var(--shadow); overflow:hidden; }
+.s-row { display:flex; align-items:center; gap:12px; padding:14px 16px; border-bottom:1px solid var(--b1); cursor:pointer; transition:background 0.12s; }
+.s-row:last-child { border-bottom:none; }
+.s-row:active { background:var(--s1); }
+.s-row svg { width:18px; height:18px; stroke:var(--t2); fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+.s-row-text { flex:1; }
+.s-row-label { font-size:14px; font-weight:500; color:var(--t1); }
+.s-row-sub { font-size:12px; color:var(--t3); margin-top:1px; }
+.s-row-arrow { width:16px; height:16px; stroke:var(--t3); flex-shrink:0; }
+.s-row.danger .s-row-label { color:var(--red); }
+.s-row.danger svg { stroke:var(--red); }
+
+/* Profile photo upload area */
+.photo-area { display:flex; flex-direction:column; align-items:center; padding:24px 0 16px; }
+.photo-large { width:80px; height:80px; border-radius:50%; background:var(--s2); border:3px solid var(--b1); overflow:hidden; display:flex; align-items:center; justify-content:center; margin-bottom:12px; cursor:pointer; position:relative; }
+.photo-large img { width:100%; height:100%; object-fit:cover; display:none; }
+.photo-large .big-init { font-size:28px; font-weight:600; color:var(--t2); }
+.photo-large-edit { position:absolute; bottom:0; right:0; width:24px; height:24px; background:var(--blue); border-radius:50%; display:flex; align-items:center; justify-content:center; }
+.photo-large-edit svg { width:12px; height:12px; stroke:white; fill:none; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
+.photo-name { font-size:18px; font-weight:600; color:var(--t1); }
+.photo-sub { font-size:13px; color:var(--t3); margin-top:2px; }
+
+/* Upload panel (fixed bottom sheet) */
+.upload-sheet { position:fixed; inset:0; z-index:400; display:flex; align-items:flex-end; background:rgba(0,0,0,0.5); opacity:0; pointer-events:none; transition:opacity 0.22s; }
+.upload-sheet.open { opacity:1; pointer-events:all; }
+.upload-inner { width:100%; background:var(--white); border-radius:20px 20px 0 0; padding:24px 20px; padding-bottom:calc(24px + var(--safe-b)); transform:translateY(20px); transition:transform 0.22s; max-height:80vh; overflow-y:auto; }
+.upload-sheet.open .upload-inner { transform:none; }
+
+input[type="file"] { display:none; }
+
+/* Spinner */
+.spinner { width:16px; height:16px; border:2px solid var(--b1); border-top-color:var(--blue); border-radius:50%; animation:spin 0.7s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg)} }
 </style>
 </head>
 <body>
@@ -204,8 +382,35 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:var(--san
 
 <!-- HEADER -->
 <div class="header">
-  <div class="header-title">CycleCoach</div>
-  <div class="header-pill" id="h-ftp">— W</div>
+  <div class="header-title" id="page-label">Coach</div>
+  <div class="header-right">
+    <div class="profile-btn" id="profile-btn" onclick="toggleDD()">
+      <img id="profile-img" src="" alt="">
+      <span class="initials" id="profile-init">?</span>
+    </div>
+    <div class="dropdown" id="dropdown">
+      <div class="dd-item" onclick="goSettings()">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        Account info
+      </div>
+      <div class="dd-item" onclick="openUpload()">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+        Upload ride files
+      </div>
+      <div class="dd-item" onclick="goSettings()">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </div>
+      <div class="dd-item" onclick="openUpload()">
+        <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Connect Garmin
+      </div>
+      <div class="dd-item danger" onclick="clearData()">
+        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        Clear all data
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- PAGES -->
@@ -215,18 +420,18 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:var(--san
   <div class="page active" id="page-coach">
     <div class="chat-scroll" id="chat-scroll">
       <div class="msg">
-        <div class="av ai">AI</div>
+        <div class="av ai">C</div>
         <div>
           <div class="bubble ai">
-            Hey! I'm your AI cycling coach — I'm focused on pushing your FTP higher.<br><br>
-            Talk to me exactly like you would a real coach. I can see all your rides, build and adjust training plans around your schedule, and adapt if you miss a session or feel rough. Try one of these:
+            Hey! I'm your AI cycling coach. Upload your Garmin ride files to get started — then I can analyse your rides, track your FTP progress, and build training plans around your schedule.<br><br>
+            Once you have data in, you can ask me anything:
           </div>
           <div class="qrs">
             <div class="qr" onclick="sq('Analyse my last ride')">Analyse my last ride</div>
-            <div class="qr" onclick="sq('Build me a training plan for this week — I have about 1.5 hours free each weekday and more on weekends')">Build me a plan</div>
+            <div class="qr" onclick="sq('Build me a training plan for this week. I have about 1.5 hours free on weekdays and more on weekends.')">Build me a plan</div>
             <div class="qr" onclick="sq('I missed my workout today')">I missed a workout</div>
-            <div class="qr" onclick="sq('I only have 30 minutes tomorrow morning, can you adjust?')">Short on time tomorrow</div>
-            <div class="qr" onclick="sq('I want to do a group ride on Saturday, can you fit it in?')">Group ride Saturday</div>
+            <div class="qr" onclick="sq('I only have 30 minutes tomorrow, can you adjust my plan?')">Short on time tomorrow</div>
+            <div class="qr" onclick="sq('I want to do a group ride on Saturday, can you fit it in and adjust the rest of the week?')">Group ride Saturday</div>
           </div>
         </div>
       </div>
@@ -241,71 +446,83 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:var(--san
 
   <!-- DASHBOARD -->
   <div class="page" id="page-dash">
-    <div class="ftp-hero">
-      <div class="label">Current FTP</div>
-      <div class="ftp-row">
-        <div>
-          <div class="ftp-big" id="d-ftp">248</div>
-          <div class="ftp-unit">watts</div>
-        </div>
-        <div class="ftp-side">
-          <div class="ftp-wpkg" id="d-wpkg">3.54</div>
-          <div class="ftp-wlbl">w / kg</div>
-        </div>
-      </div>
-      <button class="edit-btn" onclick="openEdit()">
-        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        Edit FTP &amp; weight
-      </button>
-    </div>
-
-    <div class="s-head"><h2>Fitness metrics</h2><span style="font-size:10px;color:var(--t3);font-family:var(--mono)">CTL − ATL = Form</span></div>
-    <div class="metrics-grid">
-      <div class="mc ctl"><div class="ml">Fitness</div><div class="mv" id="d-ctl">68</div><div class="ms">CTL</div></div>
-      <div class="mc atl"><div class="ml">Fatigue</div><div class="mv" id="d-atl">74</div><div class="ms">ATL</div></div>
-      <div class="mc tsb"><div class="ml">Form</div><div class="mv" id="d-tsb">−6</div><div class="ms">TSB</div></div>
-    </div>
-
-    <div class="s-head"><h2>This week</h2></div>
-    <div class="week-grid">
-      <div class="wc"><div class="wl">Distance</div><div class="wv" id="d-km">—</div><div class="ws">km this week</div></div>
-      <div class="wc"><div class="wl">Moving time</div><div class="wv" id="d-time">—</div><div class="ws">across sessions</div></div>
-      <div class="wc"><div class="wl">Elevation</div><div class="wv" id="d-elev">—</div><div class="ws">metres climbed</div></div>
-      <div class="wc"><div class="wl">Weekly TSS</div><div class="wv" id="d-tss">—</div><div class="ws">target ~380</div></div>
-    </div>
-
-    <div class="card">
-      <div class="label">TSS per day — this week</div>
-      <div class="bar-chart" id="tss-chart"></div>
-    </div>
-
-    <div class="s-head"><h2>Goal</h2></div>
-    <div class="goal-card">
-      <div class="goal-hd">
-        <div>
-          <div class="goal-name" id="g-name">—</div>
-          <div class="goal-date" id="g-date">Set a goal to get started</div>
-        </div>
-        <div class="chip chip-g" id="g-status">—</div>
-      </div>
-      <div class="prog-bg"><div class="prog-fill" id="g-prog" style="width:0%"></div></div>
-      <div class="prog-meta"><span id="g-week">—</span><span id="g-target">—</span></div>
-    </div>
-
-    <div style="height:8px"></div>
+    <div id="dash-content"></div>
   </div>
 
   <!-- CALENDAR -->
   <div class="page" id="page-cal">
     <div class="month-nav">
-      <div class="month-name" id="cal-month">—</div>
+      <div class="month-name" id="cal-month-name">—</div>
       <div class="m-btns">
         <button class="m-btn-nav" onclick="chMonth(-1)"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
         <button class="m-btn-nav" onclick="chMonth(1)"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
       </div>
     </div>
-    <div class="cal-grid" id="cal-grid"></div>
-    <div id="cal-detail"></div>
+    <div class="week-strip">
+      <div class="dow-row">
+        <div class="dow-cell">Mon</div><div class="dow-cell">Tue</div>
+        <div class="dow-cell">Wed</div><div class="dow-cell">Thu</div>
+        <div class="dow-cell">Fri</div><div class="dow-cell">Sat</div>
+        <div class="dow-cell">Sun</div>
+      </div>
+    </div>
+    <div class="mini-cal" id="mini-cal"></div>
+    <div id="cal-activities"></div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="page" id="page-settings">
+    <div class="photo-area">
+      <div class="photo-large" onclick="document.getElementById('photo-input').click()">
+        <img id="settings-photo" src="" alt="">
+        <span class="big-init" id="settings-init">?</span>
+        <div class="photo-large-edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+      </div>
+      <div class="photo-name" id="settings-name">Athlete</div>
+      <div class="photo-sub" id="settings-sub">Tap photo to change</div>
+      <input type="file" id="photo-input" accept="image/*" onchange="uploadPhoto(this)">
+    </div>
+
+    <div class="settings-section">
+      <h3>Account</h3>
+      <div class="settings-card">
+        <div class="s-row" onclick="openEdit('profile')">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <div class="s-row-text"><div class="s-row-label">Profile info</div><div class="s-row-sub">Name, email</div></div>
+          <svg class="s-row-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="s-row" onclick="openEdit('ftp')">
+          <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          <div class="s-row-text"><div class="s-row-label">FTP &amp; weight</div><div class="s-row-sub" id="s-ftp-sub">Not set</div></div>
+          <svg class="s-row-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="s-row" onclick="openEdit('goal')">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+          <div class="s-row-text"><div class="s-row-label">Goal event</div><div class="s-row-sub" id="s-goal-sub">Not set</div></div>
+          <svg class="s-row-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section" style="margin-top:20px;">
+      <h3>Data</h3>
+      <div class="settings-card">
+        <div class="s-row" onclick="openUpload()">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+          <div class="s-row-text"><div class="s-row-label">Upload ride files</div><div class="s-row-sub">.FIT or .CSV from Garmin</div></div>
+          <svg class="s-row-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="s-row" onclick="alert('Garmin Connect integration coming soon. For now use manual upload.')">
+          <svg viewBox="0 0 24 24"><path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z M8 2v16M16 6v16"/></svg>
+          <div class="s-row-text"><div class="s-row-label">Connect Garmin</div><div class="s-row-sub">Auto-sync coming soon</div></div>
+          <div class="chip chip-a" style="font-size:10px;">Soon</div>
+        </div>
+        <div class="s-row danger" onclick="clearData()">
+          <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+          <div class="s-row-text"><div class="s-row-label">Clear all data</div></div>
+        </div>
+      </div>
+    </div>
     <div style="height:16px"></div>
   </div>
 
@@ -313,17 +530,17 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:var(--san
 
 <!-- NAV -->
 <nav class="nav">
-  <button class="nav-btn active" onclick="go('coach',this)">
+  <button class="nav-btn active" onclick="go('coach',this,'Coach')">
     <div class="n-ind"></div>
     <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
     <span>Coach</span>
   </button>
-  <button class="nav-btn" onclick="go('dash',this)">
+  <button class="nav-btn" onclick="go('dash',this,'Dashboard')">
     <div class="n-ind"></div>
     <svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
     <span>Dashboard</span>
   </button>
-  <button class="nav-btn" onclick="go('cal',this)">
+  <button class="nav-btn" onclick="go('cal',this,'Calendar')">
     <div class="n-ind"></div>
     <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
     <span>Calendar</span>
@@ -332,350 +549,639 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:var(--san
 
 <!-- EDIT MODAL -->
 <div class="overlay" id="overlay" onclick="maybeClose(event)">
-  <div class="modal">
-    <h2>Update your stats</h2>
-    <div class="field"><label>FTP (watts)</label><input type="number" id="e-ftp" placeholder="248"></div>
-    <div class="field"><label>Body weight (kg)</label><input type="number" id="e-weight" placeholder="70" step="0.1"></div>
-    <div class="field"><label>Goal event name</label><input type="text" id="e-goal" placeholder="Gran Fondo Blue Mountains"></div>
-    <div class="field"><label>Goal date</label><input type="date" id="e-date"></div>
-    <button class="m-btn" onclick="saveEdit()">Save changes</button>
+  <div class="modal" id="modal-inner">
+    <div class="modal-handle"></div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<!-- UPLOAD SHEET -->
+<div class="upload-sheet" id="upload-sheet" onclick="maybeCloseUpload(event)">
+  <div class="upload-inner">
+    <div class="modal-handle"></div>
+    <h2 style="font-size:19px;font-weight:600;margin-bottom:16px;">Upload rides</h2>
+    <div class="upload-zone" id="upload-zone" onclick="document.getElementById('fit-input').click()" ondrop="onDrop(event)" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)">
+      <div class="upload-zone-icon">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+      </div>
+      <p>Tap to select files</p>
+      <span>or drag and drop here</span>
+      <div class="upload-formats">
+        <span class="fmt-chip">.FIT</span>
+        <span class="fmt-chip">.CSV</span>
+      </div>
+    </div>
+    <div id="upload-progress"></div>
+    <input type="file" id="fit-input" accept=".fit,.csv,.FIT,.CSV" multiple onchange="handleFiles(this.files)">
+    <p style="font-size:12px;color:var(--t3);margin-top:16px;line-height:1.6;">Export .FIT files from Garmin Connect: open any activity → tap ··· → Export Original. For CSV, export from Garmin Connect web.</p>
   </div>
 </div>
 
 <script>
-const CLAUDE = 'https://api.anthropic.com/v1/messages';
-const APIBASE = window.location.hostname === 'localhost' ? 'http://localhost:3000' : window.location.origin;
+// ── CONFIG ────────────────────────────────────────────────
+const CLAUDE  = 'https://api.anthropic.com/v1/messages';
+const APIBASE = window.location.hostname === 'localhost'
+  ? 'http://localhost:3000'
+  : window.location.origin;
 
+// ── STATE ─────────────────────────────────────────────────
 let S = {
-  ftp:248, weight:70,
-  goal:'', goalDate:'',
-  ctl:68, atl:74,
-  rides:[], chatHistory:[],
+  ftp: null, weight: null,
+  name: '', email: '',
+  goal: '', goalDate: '',
+  photoUrl: '',
+  ctl: null, atl: null,
+  rides: [],
+  chatHistory: [],
   calMonth: new Date(),
   selDay: null,
 };
 
-// ── NAV ──────────────────────────────────────────────────
-function go(page, btn) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('page-' + page).classList.add('active');
-  btn.classList.add('active');
-  if (page === 'coach') setTimeout(scrollChat, 50);
-  if (page === 'cal')   renderCal();
-  if (page === 'dash')  renderDash();
-}
-
-// ── BOOT ─────────────────────────────────────────────────
+// ── BOOT ──────────────────────────────────────────────────
 async function boot() {
   loadLocal();
-  refreshHeader();
+  refreshProfile();
   renderDash();
   renderCal();
   try {
     const r = await fetch(APIBASE + '/api/rides');
-    if (r.ok) { S.rides = await r.json(); renderDash(); renderCal(); }
+    if (r.ok) {
+      const rides = await r.json();
+      if (rides.length) { S.rides = rides; save(); renderDash(); renderCal(); }
+    }
   } catch {}
 }
 
 function loadLocal() {
   try {
-    const p = JSON.parse(localStorage.getItem('cc') || '{}');
-    if (p.ftp)      S.ftp      = p.ftp;
-    if (p.weight)   S.weight   = p.weight;
-    if (p.goal)     S.goal     = p.goal;
-    if (p.goalDate) S.goalDate = p.goalDate;
-    if (p.ctl)      S.ctl      = p.ctl;
-    if (p.atl)      S.atl      = p.atl;
-    if (p.rides && p.rides.length) S.rides = p.rides;
+    const p = JSON.parse(localStorage.getItem('cc2') || '{}');
+    Object.assign(S, p);
+    S.calMonth = new Date();
   } catch {}
-  if (!S.rides.length) S.rides = demo();
+}
+function save() {
+  try { localStorage.setItem('cc2', JSON.stringify({ ftp:S.ftp, weight:S.weight, name:S.name, email:S.email, goal:S.goal, goalDate:S.goalDate, photoUrl:S.photoUrl, ctl:S.ctl, atl:S.atl, rides:S.rides })); } catch {}
 }
 
-function persist() {
-  localStorage.setItem('cc', JSON.stringify({
-    ftp:S.ftp, weight:S.weight, goal:S.goal, goalDate:S.goalDate,
-    ctl:S.ctl, atl:S.atl, rides:S.rides,
-  }));
-}
-
-function demo() {
-  const ago = n => { const d=new Date(); d.setDate(d.getDate()-n); return d.toISOString().split('T')[0]; };
-  return [
-    {id:1,name:'Morning Z2',         date:ago(0), dur:105,dist:52, elev:340,avg_power:158,np:163,avg_hr:138,cad:89,tss:94, completed:true},
-    {id:2,name:'Sweet spot 2×20',    date:ago(2), dur:80, dist:38, elev:210,avg_power:204,np:211,avg_hr:158,cad:92,tss:121,completed:true},
-    {id:3,name:'Recovery spin',      date:ago(3), dur:0,  dist:0,  elev:0,  avg_power:0,  np:0,  avg_hr:0,  cad:0, tss:0,  completed:false,reason:null},
-    {id:4,name:'VO₂ max 5×4 min',   date:ago(5), dur:70, dist:34, elev:180,avg_power:224,np:238,avg_hr:172,cad:95,tss:118,completed:true},
-    {id:5,name:'Long endurance',     date:ago(7), dur:180,dist:91, elev:820,avg_power:152,np:158,avg_hr:132,cad:88,tss:163,completed:true},
-    {id:6,name:'Threshold 2×15',     date:ago(9), dur:0,  dist:0,  elev:0,  avg_power:0,  np:0,  avg_hr:0,  cad:0, tss:0,  completed:false,reason:null},
-    {id:7,name:'Z2 base',            date:ago(12),dur:90, dist:45, elev:270,avg_power:161,np:165,avg_hr:140,cad:89,tss:84, completed:true},
-    {id:8,name:'Group ride',         date:ago(14),dur:150,dist:78, elev:960,avg_power:182,np:201,avg_hr:155,cad:91,tss:148,completed:true},
-  ];
-}
-
-// ── HEADER ───────────────────────────────────────────────
-function refreshHeader() {
-  document.getElementById('h-ftp').textContent = S.ftp + 'W';
-}
-
-// ── DASHBOARD ────────────────────────────────────────────
-function renderDash() {
-  const wpkg = (S.ftp / S.weight).toFixed(2);
-  document.getElementById('d-ftp').textContent  = S.ftp;
-  document.getElementById('d-wpkg').textContent = wpkg;
-
-  const tsb = S.ctl - S.atl;
-  const tsbEl = document.getElementById('d-tsb');
-  tsbEl.textContent = (tsb >= 0 ? '+' : '') + tsb;
-  tsbEl.style.color = tsb > 5 ? 'var(--accent)' : tsb < -10 ? 'var(--red)' : 'var(--amber)';
-  document.getElementById('d-ctl').textContent = S.ctl;
-  document.getElementById('d-atl').textContent = S.atl;
-
-  const now = new Date();
-  const weekAgo = new Date(); weekAgo.setDate(now.getDate()-7);
-  const week = S.rides.filter(r => r.completed && new Date(r.date+'T12:00:00') >= weekAgo);
-
-  const km   = week.reduce((s,r)=>s+(r.dist||0),0);
-  const mins = week.reduce((s,r)=>s+(r.dur||0),0);
-  const elev = week.reduce((s,r)=>s+(r.elev||0),0);
-  const tss  = week.reduce((s,r)=>s+(r.tss||0),0);
-
-  document.getElementById('d-km').textContent   = km;
-  document.getElementById('d-time').textContent  = ftm(mins);
-  document.getElementById('d-elev').textContent  = elev.toLocaleString();
-  document.getElementById('d-tss').textContent   = tss;
-
-  // TSS bar chart
-  const tssDay = [0,0,0,0,0,0,0];
-  week.forEach(r => {
-    const dow = (new Date(r.date+'T12:00:00').getDay()+6)%7;
-    tssDay[dow] += r.tss||0;
-  });
-  const mx = Math.max(...tssDay,1);
-  const todayDow = (now.getDay()+6)%7;
-  const dls = ['M','T','W','T','F','S','S'];
-  document.getElementById('tss-chart').innerHTML = tssDay.map((t,i)=>
-    `<div class="bc"><div class="b${i===todayDow?' today':''}" style="height:${Math.round(t/mx*44)}px"></div><div class="bd">${dls[i]}</div></div>`
-  ).join('');
-
-  // Goal
-  if (S.goalDate) {
-    const gd   = new Date(S.goalDate+'T12:00:00');
-    const diff = Math.ceil((gd-now)/86400000);
-    const weeksLeft = Math.max(0,Math.ceil(diff/7));
-    const totalW = 12, doneW = Math.max(0,totalW-weeksLeft);
-    document.getElementById('g-name').textContent   = S.goal || 'Goal event';
-    document.getElementById('g-date').textContent   = weeksLeft + ' weeks away · ' + gd.toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});
-    document.getElementById('g-prog').style.width   = Math.round(doneW/totalW*100)+'%';
-    document.getElementById('g-week').textContent   = 'Week '+doneW+' of '+totalW;
-    document.getElementById('g-target').textContent = 'Target: '+(S.ftp+Math.round(doneW*1.8))+'W';
-    const status = weeksLeft > 4 ? 'On track' : weeksLeft > 0 ? 'Final push' : 'Race week!';
-    document.getElementById('g-status').textContent = status;
-  } else {
-    document.getElementById('g-name').textContent = 'No goal set yet';
-    document.getElementById('g-date').textContent = 'Tap "Edit FTP & weight" to add a goal event';
+// ── PROFILE ───────────────────────────────────────────────
+function refreshProfile() {
+  const init = S.name ? S.name.trim().split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2) : '?';
+  document.getElementById('profile-init').textContent = init;
+  document.getElementById('settings-init').textContent = init;
+  document.getElementById('settings-name').textContent = S.name || 'Athlete';
+  document.getElementById('settings-sub').textContent  = S.email || 'Tap photo to change';
+  document.getElementById('s-ftp-sub').textContent = S.ftp ? S.ftp + 'W · ' + S.weight + 'kg' : 'Not set';
+  document.getElementById('s-goal-sub').textContent = S.goal || 'Not set';
+  if (S.photoUrl) {
+    ['profile-img','settings-photo'].forEach(id => {
+      const img = document.getElementById(id);
+      img.src = S.photoUrl; img.style.display='block';
+    });
+    ['profile-init','settings-init'].forEach(id => {
+      document.getElementById(id).style.display='none';
+    });
   }
 }
-
-function ftm(mins) {
-  const h = Math.floor(mins/60), m = mins%60;
-  return h ? h+'h'+(m?' '+m+'m':'') : m+'m';
-}
-
-// ── MODAL ────────────────────────────────────────────────
-function openEdit() {
-  document.getElementById('e-ftp').value    = S.ftp;
-  document.getElementById('e-weight').value = S.weight;
-  document.getElementById('e-goal').value   = S.goal;
-  document.getElementById('e-date').value   = S.goalDate;
-  document.getElementById('overlay').classList.add('open');
-}
-function maybeClose(e) {
-  if (e.target === document.getElementById('overlay'))
+function uploadPhoto(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    S.photoUrl = e.target.result; save(); refreshProfile();
     document.getElementById('overlay').classList.remove('open');
-}
-function saveEdit() {
-  const f = +document.getElementById('e-ftp').value;
-  const w = +document.getElementById('e-weight').value;
-  const g =  document.getElementById('e-goal').value;
-  const d =  document.getElementById('e-date').value;
-  if (f > 0) S.ftp    = f;
-  if (w > 0) S.weight = w;
-  S.goal     = g;
-  S.goalDate = d;
-  persist(); refreshHeader(); renderDash();
-  document.getElementById('overlay').classList.remove('open');
+  };
+  reader.readAsDataURL(file);
 }
 
-// ── CALENDAR ─────────────────────────────────────────────
-function chMonth(dir) { S.calMonth.setMonth(S.calMonth.getMonth()+dir); renderCal(); }
-
-function renderCal() {
-  const m = S.calMonth;
-  document.getElementById('cal-month').textContent = m.toLocaleDateString('en-AU',{month:'long',year:'numeric'});
-  const yr = m.getFullYear(), mo = m.getMonth();
-  const first = new Date(yr,mo,1);
-  const last  = new Date(yr,mo+1,0);
-  const offset = (first.getDay()+6)%7;
-  const today  = new Date().toISOString().split('T')[0];
-  const dows   = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  let html = dows.map(d=>`<div class="dow">${d}</div>`).join('');
-  for (let i=0;i<offset;i++) html+=`<div class="cd empty"></div>`;
-  for (let d=1;d<=last.getDate();d++) {
-    const ds = `${yr}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const ride = S.rides.find(r=>r.date===ds);
-    const isToday = ds===today;
-    let inner = '';
-    if (ride) {
-      inner = `<div class="dot ${ride.completed?'ride':'missed'}"></div>`;
-      if (ride.completed && ride.tss) inner += `<div class="cal-tss">${ride.tss}</div>`;
-    }
-    html += `<div class="cd${isToday?' today':''}" onclick="selDay('${ds}')"><div class="dn">${d}</div>${inner}</div>`;
-  }
-  document.getElementById('cal-grid').innerHTML = html;
-  if (S.selDay) renderDetail(S.selDay);
+// ── NAV ───────────────────────────────────────────────────
+function go(page, btn, label) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  if (btn) btn.classList.add('active');
+  document.getElementById('page-label').textContent = label || '';
+  closeDD();
+  if (page === 'coach') setTimeout(scrollChat, 50);
+  if (page === 'cal')   renderCal();
+  if (page === 'dash')  renderDash();
+}
+function goSettings() {
+  closeDD();
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-settings').classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-label').textContent = 'Settings';
 }
 
-function selDay(ds) { S.selDay = ds; renderDetail(ds); }
+// ── DROPDOWN ──────────────────────────────────────────────
+function toggleDD() { document.getElementById('dropdown').classList.toggle('open'); }
+function closeDD()  { document.getElementById('dropdown').classList.remove('open'); }
+document.addEventListener('click', e => {
+  if (!document.getElementById('profile-btn').contains(e.target) &&
+      !document.getElementById('dropdown').contains(e.target)) closeDD();
+});
 
-function renderDetail(ds) {
-  const ride = S.rides.find(r=>r.date===ds);
-  const el   = document.getElementById('cal-detail');
-  if (!ride) { el.innerHTML=''; return; }
-
-  const d    = new Date(ds+'T12:00:00');
-  const nice = d.toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long'});
-
-  if (!ride.completed) {
-    el.innerHTML = `<div class="miss-box">
-      <h3><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Missed — ${ride.name}</h3>
-      <p>${nice} · Tell me why and I'll adjust your upcoming sessions.</p>
-      <div class="r-row">
-        <button class="r-btn" onclick="missedTap(${ride.id},'fatigue')">Too fatigued</button>
-        <button class="r-btn" onclick="missedTap(${ride.id},'busy')">No time</button>
-        <button class="r-btn" onclick="missedTap(${ride.id},'illness')">Illness / injury</button>
-        <button class="r-btn" onclick="missedTap(${ride.id},'motivation')">Low motivation</button>
-      </div>
+// ── DASHBOARD ─────────────────────────────────────────────
+function renderDash() {
+  const el = document.getElementById('dash-content');
+  if (!S.ftp && !S.rides.length) {
+    el.innerHTML = `<div class="empty-state">
+      <div class="empty-icon"><svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></div>
+      <div class="empty-title">No data yet</div>
+      <div class="empty-sub">Upload your Garmin .FIT files to see your dashboard, fitness metrics, and training load.</div>
+      <button class="upload-btn" onclick="openUpload()">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+        Upload ride files
+      </button>
     </div>`;
     return;
   }
 
-  const IF = ride.np && S.ftp ? (ride.np/S.ftp).toFixed(2) : '—';
+  const done    = S.rides.filter(r=>r.completed);
+  const ftp     = S.ftp || estimateFTP(done);
+  const weight  = S.weight || 70;
+  const wpkg    = (ftp/weight).toFixed(2);
+  const ctl     = S.ctl || calcCTL(done);
+  const atl     = S.atl || calcATL(done);
+  const tsb     = ctl - atl;
+  const tsbCol  = tsb > 5 ? 'var(--green)' : tsb < -10 ? 'var(--red)' : 'var(--amber)';
 
-  el.innerHTML = `<div class="detail-wrap">
-    <div class="detail-hd">
-      <div>
-        <div class="detail-name">${ride.name}</div>
-        <div class="detail-date">${nice}</div>
-      </div>
-      <div class="close-btn" onclick="document.getElementById('cal-detail').innerHTML='';S.selDay=null;">
-        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </div>
+  const now     = new Date();
+  const weekAgo = new Date(); weekAgo.setDate(now.getDate()-7);
+  const week    = done.filter(r => new Date(r.date+'T12:00:00') >= weekAgo);
+  const km      = week.reduce((s,r)=>s+(r.dist||0),0).toFixed(0);
+  const mins    = week.reduce((s,r)=>s+(r.dur||0),0);
+  const elev    = week.reduce((s,r)=>s+(r.elev||0),0);
+  const tss     = week.reduce((s,r)=>s+(r.tss||0),0);
+
+  const tssDay  = [0,0,0,0,0,0,0];
+  week.forEach(r => { const dow=(new Date(r.date+'T12:00:00').getDay()+6)%7; tssDay[dow]+=(r.tss||0); });
+  const mxTSS   = Math.max(...tssDay,1);
+  const todayDow= (now.getDay()+6)%7;
+  const dls     = ['M','T','W','T','F','S','S'];
+
+  let html = '';
+
+  // FTP hero
+  html += `<div class="ftp-card">
+    <div class="ftp-label">Current FTP</div>
+    <div class="ftp-row">
+      <div><div class="ftp-big">${ftp}</div><div class="ftp-unit">watts</div></div>
+      <div style="text-align:right"><div class="ftp-wpkg">${wpkg}</div><div class="ftp-wlbl">w / kg</div></div>
     </div>
-    <div class="map-box">
-      <svg viewBox="0 0 360 140" preserveAspectRatio="xMidYMid slice">
-        <rect width="360" height="140" fill="#141414"/>
-        <path d="M20,90 C50,65 70,105 100,75 S145,45 170,68 S215,95 245,58 S295,28 320,55 S348,78 355,68" stroke="#c8ff00" stroke-width="2" fill="none" opacity="0.7" stroke-linecap="round"/>
-        <circle cx="20" cy="90" r="4" fill="#c8ff00"/>
-        <circle cx="355" cy="68" r="4" fill="#c8ff00" opacity="0.5"/>
-        <circle cx="20" cy="90" r="8" fill="#c8ff00" opacity="0.15"/>
-      </svg>
-      <div class="map-tag">${ride.dist}km · ${ride.elev}m ↑</div>
-    </div>
-    <div class="d-stats">
-      <div class="ds"><div class="dv">${ride.avg_power}W</div><div class="dl">Avg Power</div></div>
-      <div class="ds"><div class="dv">${ride.np}W</div><div class="dl">Norm Power</div></div>
-      <div class="ds"><div class="dv">${ride.tss}</div><div class="dl">TSS</div></div>
-      <div class="ds"><div class="dv">${ride.dist}km</div><div class="dl">Distance</div></div>
-      <div class="ds"><div class="dv">${ftm(ride.dur)}</div><div class="dl">Moving time</div></div>
-      <div class="ds"><div class="dv">${ride.elev}m</div><div class="dl">Elevation</div></div>
-      <div class="ds"><div class="dv">${ride.avg_hr}</div><div class="dl">Avg HR</div></div>
-      <div class="ds"><div class="dv">${ride.cad}</div><div class="dl">Cadence</div></div>
-      <div class="ds"><div class="dv">${IF}</div><div class="dl">Int. Factor</div></div>
-    </div>
+    <div class="ftp-meta">Body weight: ${weight}kg</div>
+    <button class="ftp-edit" onclick="openEdit('ftp')">
+      <svg viewBox="0 0 24 24" width="12" height="12" style="stroke:white;fill:none;stroke-width:2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Edit
+    </button>
   </div>`;
+
+  // CTL / ATL / TSB
+  html += `<div class="s-head"><h2>Fitness metrics</h2><span style="font-size:11px;color:var(--t3)">CTL − ATL = Form</span></div>
+  <div class="metrics-row">
+    <div class="mc ctl"><div class="ml">Fitness</div><div class="mv">${ctl}</div><div class="ms">CTL</div></div>
+    <div class="mc atl"><div class="ml">Fatigue</div><div class="mv">${atl}</div><div class="ms">ATL</div></div>
+    <div class="mc tsb"><div class="ml">Form</div><div class="mv" style="color:${tsbCol}">${tsb>=0?'+':''}${tsb}</div><div class="ms">TSB</div></div>
+  </div>`;
+
+  // Weekly stats
+  html += `<div class="s-head"><h2>This week</h2></div>
+  <div class="week-grid">
+    <div class="wc"><div class="wl">Distance</div><div class="wv">${km} <span style="font-size:13px;font-weight:400;color:var(--t3)">km</span></div><div class="ws">${week.length} session${week.length!==1?'s':''}</div></div>
+    <div class="wc"><div class="wl">Moving time</div><div class="wv">${ftm(mins)}</div><div class="ws">total riding</div></div>
+    <div class="wc"><div class="wl">Elevation</div><div class="wv">${elev.toLocaleString()} <span style="font-size:13px;font-weight:400;color:var(--t3)">m</span></div><div class="ws">metres climbed</div></div>
+    <div class="wc"><div class="wl">Weekly TSS</div><div class="wv">${tss}</div><div class="ws">target ~380</div></div>
+  </div>`;
+
+  // TSS chart
+  html += `<div class="card card-pad">
+    <div class="label">TSS per day</div>
+    <div class="bar-chart">${tssDay.map((t,i)=>`<div class="bc"><div class="b${t>0?(i===todayDow?' today':' has'):''}${i===todayDow&&t===0?' today':''}" style="height:${Math.max(3,Math.round(t/mxTSS*48))}px"></div><div class="bd">${dls[i]}</div></div>`).join('')}</div>
+  </div>`;
+
+  // Goal
+  if (S.goal) {
+    const gd    = new Date(S.goalDate+'T12:00:00');
+    const diff  = Math.ceil((gd-now)/86400000);
+    const wLeft = Math.max(0,Math.ceil(diff/7));
+    const total = 12, done2 = Math.max(0,total-wLeft);
+    const pct   = Math.round(done2/total*100);
+    html += `<div class="s-head"><h2>Goal</h2></div>
+    <div class="goal-card">
+      <div class="goal-hd">
+        <div><div class="goal-name">${S.goal}</div><div class="goal-date">${wLeft} weeks away · ${gd.toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'})}</div></div>
+        <div class="chip ${wLeft>4?'chip-g':wLeft>1?'chip-b':'chip-a'}">${wLeft>4?'On track':wLeft>1?'Final push':'Race week!'}</div>
+      </div>
+      <div class="prog-bg"><div class="prog-fill" style="width:${pct}%"></div></div>
+      <div class="prog-meta"><span>Week ${done2} of ${total}</span><span>Target: ${ftp+Math.round(done2*1.5)}W</span></div>
+    </div>`;
+  } else {
+    html += `<div class="s-head"><h2>Goal</h2></div>
+    <div class="goal-card" style="cursor:pointer" onclick="openEdit('goal')">
+      <div style="display:flex;align-items:center;gap:10px;color:var(--t2)">
+        <svg width="20" height="20" viewBox="0 0 24 24" style="stroke:var(--t3);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        <span style="font-size:14px">Add a goal event to track your progress</span>
+      </div>
+    </div>`;
+  }
+
+  html += '<div style="height:8px"></div>';
+  el.innerHTML = html;
+}
+
+// ── CALENDAR ──────────────────────────────────────────────
+function chMonth(d) { S.calMonth.setMonth(S.calMonth.getMonth()+d); renderCal(); }
+
+function renderCal() {
+  const m    = S.calMonth;
+  const yr   = m.getFullYear(), mo = m.getMonth();
+  document.getElementById('cal-month-name').textContent = m.toLocaleDateString('en-AU',{month:'long',year:'numeric'});
+
+  // Mini calendar grid
+  const first  = new Date(yr,mo,1);
+  const last   = new Date(yr,mo+1,0);
+  const offset = (first.getDay()+6)%7;
+  const today  = new Date().toISOString().split('T')[0];
+  const rideMap = {};
+  S.rides.forEach(r => { rideMap[r.date] = r; });
+
+  let calHtml = '';
+  // Previous month padding
+  const prevLast = new Date(yr,mo,0).getDate();
+  for (let i=offset-1; i>=0; i--) {
+    const d2 = new Date(yr,mo-1,prevLast-i).toISOString().split('T')[0];
+    const r  = rideMap[d2];
+    calHtml += `<div class="mini-day other-month${r?' has-'+(r.completed?'ride':'missed'):''}" onclick="selDay('${d2}')">${prevLast-i}</div>`;
+  }
+  for (let d=1; d<=last.getDate(); d++) {
+    const ds = `${yr}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const r  = rideMap[ds];
+    const cls = ds===today ? ' today' : ds===S.selDay ? ' selected' : '';
+    const rdot = r ? (r.completed ? ' has-ride' : ' has-missed') : '';
+    calHtml += `<div class="mini-day${cls}${rdot}" onclick="selDay('${ds}')">${d}</div>`;
+  }
+  // Fill remaining cells
+  const total = offset + last.getDate();
+  const remaining = (7 - (total%7))%7;
+  for (let d=1; d<=remaining; d++) {
+    const ds = `${yr}-${String(mo+2).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const r  = rideMap[ds];
+    calHtml += `<div class="mini-day other-month${r?' has-'+(r.completed?'ride':'missed'):''}" onclick="selDay('${ds}')">${d}</div>`;
+  }
+
+  // Chunk into rows
+  const cells = calHtml.match(/<div[^>]*>.*?<\/div>/gs) || [];
+  let rows = '';
+  for (let i=0; i<cells.length; i+=7) rows += `<div class="mini-row">${cells.slice(i,i+7).join('')}</div>`;
+  document.getElementById('mini-cal').innerHTML = rows;
+
+  renderActivityList();
+}
+
+function selDay(ds) {
+  S.selDay = ds;
+  renderCal();
+  // Scroll to activity
+  setTimeout(() => {
+    const el = document.getElementById('act-'+ds);
+    if (el) el.scrollIntoView({behavior:'smooth',block:'center'});
+  }, 100);
+}
+
+function renderActivityList() {
+  const m     = S.calMonth;
+  const yr    = m.getFullYear(), mo = m.getMonth();
+  const mRides = S.rides.filter(r => {
+    const d = new Date(r.date+'T12:00:00');
+    return d.getFullYear()===yr && d.getMonth()===mo;
+  }).sort((a,b) => b.date.localeCompare(a.date));
+
+  const el = document.getElementById('cal-activities');
+
+  if (!mRides.length) {
+    el.innerHTML = `<div class="empty-state" style="padding:32px">
+      <div class="empty-icon"><svg viewBox="0 0 24 24"><path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z"/></svg></div>
+      <div class="empty-title">No rides this month</div>
+      <div class="empty-sub">Upload .FIT files to see your activities here.</div>
+      <button class="upload-btn-sm" onclick="openUpload()">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+        Upload files
+      </button>
+    </div>`;
+    return;
+  }
+
+  let html = '';
+  mRides.forEach(r => {
+    const d    = new Date(r.date+'T12:00:00');
+    const nice = d.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'});
+    const sel  = r.date === S.selDay;
+
+    html += `<div id="act-${r.date}" style="${sel?'margin:0 12px 10px;':''}">`;
+
+    if (!r.completed) {
+      html += `<div class="missed-card" style="${sel?'border-left-width:4px':''}">
+        <div class="missed-header">
+          <div><div class="missed-title">Missed session</div><div class="missed-sub">${nice} · ${r.name}</div></div>
+          <div class="chip chip-r">Missed</div>
+        </div>
+        <div class="missed-body">
+          <p>Why did you skip this one? I'll adjust your upcoming plan accordingly.</p>
+          <div class="r-row">
+            <button class="r-btn" onclick="missedTap(${r.id},'fatigue')">Too fatigued</button>
+            <button class="r-btn" onclick="missedTap(${r.id},'busy')">No time</button>
+            <button class="r-btn" onclick="missedTap(${r.id},'illness')">Illness</button>
+            <button class="r-btn" onclick="missedTap(${r.id},'motivation')">Low motivation</button>
+          </div>
+        </div>
+      </div>`;
+    } else {
+      const IF = r.np && S.ftp ? (r.np/S.ftp).toFixed(2) : '—';
+      const mapSvg = genMapSvg(r);
+      html += `<div class="act-card">
+        <div class="act-header">
+          <div>
+            <div class="act-title">${r.name}</div>
+            <div class="act-sub">${nice} · Garmin Edge</div>
+          </div>
+          <div class="chip chip-g">Completed</div>
+        </div>
+        <div class="act-map">
+          ${mapSvg}
+          <div class="act-map-overlay">${r.dist}km · ${r.elev}m ↑</div>
+        </div>
+        <div class="act-stats">
+          <div class="as"><div class="av2">${r.dur?ftm(r.dur):'—'}</div><div class="al">Time</div></div>
+          <div class="as"><div class="av2">${r.dist||'—'}<span style="font-size:10px;font-weight:400"> km</span></div><div class="al">Dist</div></div>
+          <div class="as"><div class="av2">${r.avg_power||'—'}<span style="font-size:10px;font-weight:400"> W</span></div><div class="al">Avg pwr</div></div>
+          <div class="as"><div class="av2">${r.avg_hr||'—'}</div><div class="al">Avg HR</div></div>
+        </div>
+        ${sel ? `<div style="display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--b1)">
+          <div class="as"><div class="av2">${r.np||'—'}W</div><div class="al">Norm Pwr</div></div>
+          <div class="as"><div class="av2">${r.tss||'—'}</div><div class="al">TSS</div></div>
+          <div class="as"><div class="av2">${IF}</div><div class="al">Int. Factor</div></div>
+          <div class="as"><div class="av2">${r.elev||'—'}m</div><div class="al">Elevation</div></div>
+          <div class="as"><div class="av2">${r.cad||'—'}</div><div class="al">Cadence</div></div>
+          <div class="as"><div class="av2">${r.max_power||'—'}W</div><div class="al">Max Pwr</div></div>
+        </div>` : ''}
+      </div>`;
+    }
+    html += '</div>';
+  });
+
+  el.innerHTML = html;
+}
+
+function genMapSvg(ride) {
+  // Generate a pseudo-random route based on ride ID for visual variety
+  const seed = ride.id || 1;
+  const rand = (n,s) => ((seed*n*7+s*13)%100)/100;
+  let path = `M ${20+rand(1,1)*30},${60+rand(1,2)*40}`;
+  for (let i=1; i<8; i++) {
+    const x = 20+(i/7)*320+rand(i,3)*30-15;
+    const y = 30+rand(i,4)*100;
+    path += ` S ${x+rand(i,5)*20},${y+rand(i,6)*30} ${x},${y}`;
+  }
+  const pts = path.match(/[\d.]+,[\d.]+/g)||[];
+  const first = pts[0]||'20,80', last = pts[pts.length-1]||'340,60';
+  return `<svg viewBox="0 0 360 160" preserveAspectRatio="xMidYMid slice">
+    <rect width="360" height="160" fill="#dce8d4"/>
+    <rect x="0" y="60" width="360" height="50" fill="#a8d4f5" opacity="0.4"/>
+    <path d="${path}" stroke="#1a73e8" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.9"/>
+    <circle cx="${first.split(',')[0]}" cy="${first.split(',')[1]}" r="5" fill="#1a73e8"/>
+    <circle cx="${last.split(',')[0]}" cy="${last.split(',')[1]}" r="5" fill="#1a73e8" opacity="0.5"/>
+  </svg>`;
+}
+
+// ── MODALS ────────────────────────────────────────────────
+function openEdit(type) {
+  closeDD();
+  const body = document.getElementById('modal-body');
+  if (type === 'ftp') {
+    body.innerHTML = `<h2>FTP &amp; Weight</h2>
+      <div class="field"><label>FTP (watts)</label><input type="number" id="e-ftp" value="${S.ftp||''}" placeholder="e.g. 248"></div>
+      <div class="field"><label>Body weight (kg)</label><input type="number" id="e-weight" value="${S.weight||''}" placeholder="e.g. 70" step="0.1"></div>
+      <button class="m-save" onclick="saveEdit('ftp')">Save</button>
+      <button class="m-cancel" onclick="closeModal()">Cancel</button>`;
+  } else if (type === 'goal') {
+    body.innerHTML = `<h2>Goal event</h2>
+      <div class="field"><label>Event name</label><input type="text" id="e-goal" value="${S.goal||''}" placeholder="e.g. Gran Fondo Blue Mountains"></div>
+      <div class="field"><label>Event date</label><input type="date" id="e-gdate" value="${S.goalDate||''}"></div>
+      <button class="m-save" onclick="saveEdit('goal')">Save</button>
+      <button class="m-cancel" onclick="closeModal()">Cancel</button>`;
+  } else if (type === 'profile') {
+    body.innerHTML = `<h2>Profile info</h2>
+      <div class="field"><label>Your name</label><input type="text" id="e-name" value="${S.name||''}" placeholder="e.g. Alex Smith"></div>
+      <div class="field"><label>Email</label><input type="email" id="e-email" value="${S.email||''}" placeholder="you@email.com"></div>
+      <div class="field"><label>Profile photo</label>
+        <button class="upload-btn-sm" onclick="document.getElementById('photo-modal-input').click()" style="width:100%;justify-content:center">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          Choose photo
+        </button>
+        <input type="file" id="photo-modal-input" accept="image/*" onchange="uploadPhoto(this)">
+      </div>
+      <button class="m-save" onclick="saveEdit('profile')">Save</button>
+      <button class="m-cancel" onclick="closeModal()">Cancel</button>`;
+  }
+  document.getElementById('overlay').classList.add('open');
+}
+
+function saveEdit(type) {
+  if (type === 'ftp') {
+    const f = +document.getElementById('e-ftp').value;
+    const w = +document.getElementById('e-weight').value;
+    if (f > 0) S.ftp    = f;
+    if (w > 0) S.weight = w;
+  } else if (type === 'goal') {
+    S.goal     = document.getElementById('e-goal').value;
+    S.goalDate = document.getElementById('e-gdate').value;
+  } else if (type === 'profile') {
+    S.name  = document.getElementById('e-name').value;
+    S.email = document.getElementById('e-email').value;
+  }
+  save(); refreshProfile(); renderDash(); closeModal();
+}
+
+function closeModal() { document.getElementById('overlay').classList.remove('open'); }
+function maybeClose(e) { if (e.target===document.getElementById('overlay')) closeModal(); }
+
+// ── UPLOAD ────────────────────────────────────────────────
+function openUpload() { closeDD(); document.getElementById('upload-sheet').classList.add('open'); }
+function closeUpload() { document.getElementById('upload-sheet').classList.remove('open'); document.getElementById('upload-progress').innerHTML=''; }
+function maybeCloseUpload(e) { if (e.target===document.getElementById('upload-sheet')) closeUpload(); }
+function onDragOver(e) { e.preventDefault(); document.getElementById('upload-zone').classList.add('drag'); }
+function onDragLeave() { document.getElementById('upload-zone').classList.remove('drag'); }
+function onDrop(e) { e.preventDefault(); onDragLeave(); handleFiles(e.dataTransfer.files); }
+
+async function handleFiles(files) {
+  if (!files.length) return;
+  const prog = document.getElementById('upload-progress');
+  prog.innerHTML = '';
+  for (const file of Array.from(files)) {
+    const item = document.createElement('div');
+    item.className = 'prog-item';
+    item.innerHTML = `<div class="spinner"></div><span>${file.name}</span>`;
+    prog.appendChild(item);
+    try {
+      const ride = await parseFile(file);
+      S.rides.unshift(ride);
+      save();
+      item.innerHTML = `<svg viewBox="0 0 24 24" class="ok" style="flex-shrink:0"><polyline points="20 6 9 17 4 12"/></svg><span>${file.name}</span><span style="margin-left:auto;font-size:12px;color:var(--t3)">${ride.dist}km · ${ride.tss} TSS</span>`;
+    } catch(err) {
+      item.innerHTML = `<svg viewBox="0 0 24 24" class="err" style="flex-shrink:0"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span>${file.name}</span><span style="margin-left:auto;font-size:12px;color:var(--red)">Could not parse</span>`;
+    }
+  }
+  renderDash(); renderCal();
+  setTimeout(closeUpload, 1500);
+}
+
+async function parseFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const text = e.target.result;
+        let ride = null;
+        if (file.name.toLowerCase().endsWith('.csv')) {
+          ride = parseCSV(text, file.name);
+        } else {
+          // .FIT binary — extract what we can, generate from filename
+          ride = parseFIT(file.name);
+        }
+        if (ride) resolve(ride);
+        else reject(new Error('No data'));
+      } catch(err) { reject(err); }
+    };
+    if (file.name.toLowerCase().endsWith('.fit')) reader.readAsArrayBuffer(file);
+    else reader.readAsText(file);
+  });
+}
+
+function parseCSV(text, filename) {
+  const lines = text.trim().split('\n');
+  const headers = lines[0].split(',').map(h=>h.trim().toLowerCase().replace(/[^a-z0-9_]/g,'_'));
+  const vals = {};
+  if (lines.length > 1) {
+    const row = lines[1].split(',');
+    headers.forEach((h,i) => { vals[h] = row[i]?.trim() || ''; });
+  }
+  const get = (...keys) => { for (const k of keys) { if (vals[k] && vals[k]!=='') return vals[k]; } return null; };
+  const date = get('date','activity_date','start_time') || new Date().toISOString().split('T')[0];
+  const dateStr = date.includes('T') ? date.split('T')[0] : date.substring(0,10);
+  const dur  = Math.round((+get('elapsed_time','moving_time','duration','total_timer_time') || 3600) / 60);
+  const dist = Math.round((+get('distance','total_distance') || 0) / (get('distance')?.includes('.')?1:1000) * 10) / 10;
+  const ftp  = S.ftp || 220;
+  const avgP = +get('average_watts','avg_power','average_power') || null;
+  const npP  = +get('normalized_power','weighted_average_watts') || (avgP ? Math.round(avgP*1.05) : null);
+  const tss  = +get('training_stress_score','tss') || (avgP && ftp ? Math.round((dur/60)*Math.pow(avgP/ftp,2)*100) : null);
+  return {
+    id: Date.now()+Math.random(),
+    name: get('activity_name','name','title') || filename.replace(/\.csv$/i,''),
+    date: dateStr,
+    dur, dist: dist || Math.round(dur*0.48),
+    elev: Math.round(+get('elevation_gain','total_elevation_gain') || dur*1.2),
+    avg_power: avgP,
+    np: npP,
+    max_power: +get('max_watts','max_power') || null,
+    avg_hr: +get('average_heart_rate','avg_hr','average_heartrate') || null,
+    cad: +get('average_cadence','avg_cadence') || null,
+    tss, completed: true,
+  };
+}
+
+function parseFIT(filename) {
+  // FIT binary parsing requires a full FIT SDK
+  // For now we extract date from filename if possible and create a placeholder
+  const name = filename.replace(/\.fit$/i,'').replace(/_/g,' ');
+  const dateMatch = filename.match(/(\d{4}-\d{2}-\d{2})|(\d{8})/);
+  let date = new Date().toISOString().split('T')[0];
+  if (dateMatch) {
+    const raw = dateMatch[0];
+    if (raw.includes('-')) date = raw;
+    else date = `${raw.slice(0,4)}-${raw.slice(4,6)}-${raw.slice(6,8)}`;
+  }
+  return {
+    id: Date.now()+Math.random(),
+    name: name || 'Cycling ride',
+    date,
+    dur: null, dist: null, elev: null,
+    avg_power: null, np: null, max_power: null,
+    avg_hr: null, cad: null, tss: null,
+    completed: true,
+    note: 'FIT file uploaded — full data requires FIT SDK integration. Power data will show when connected to backend.',
+  };
 }
 
 // ── MISSED FLOW ───────────────────────────────────────────
 function missedTap(id, reason) {
   const ride = S.rides.find(r=>r.id===id);
-  if (ride) { ride.reason = reason; persist(); }
+  if (ride) { ride.reason=reason; save(); }
   const msgs = {
     fatigue:    `I missed my ${ride?.name||'session'} because I was too fatigued.`,
-    busy:       `I didn't have enough time for my ${ride?.name||'session'}. Can you adjust the plan?`,
+    busy:       `I didn't have enough time for my ${ride?.name||'session'} today.`,
     illness:    `I was feeling unwell so I skipped my ${ride?.name||'session'}.`,
-    motivation: `I wasn't feeling motivated for my ${ride?.name||'session'} and needed a break.`,
+    motivation: `I just wasn't motivated for my ${ride?.name||'session'}.`,
   };
-  go('coach', document.querySelectorAll('.nav-btn')[0]);
-  setTimeout(() => callClaude(msgs[reason], true), 250);
+  go('coach', document.querySelectorAll('.nav-btn')[0], 'Coach');
+  setTimeout(()=>callClaude(msgs[reason], true), 250);
 }
 
 // ── CLAUDE ────────────────────────────────────────────────
-function sq(msg) { callClaude(msg, false); }
-
+function sq(m) { callClaude(m, false); }
 function send() {
-  const el = document.getElementById('chat-input');
-  const msg = el.value.trim();
-  if (!msg) return;
+  const el=document.getElementById('chat-input');
+  const msg=el.value.trim(); if(!msg) return;
   el.value=''; el.style.height='';
-  callClaude(msg, false);
+  callClaude(msg,false);
 }
-function ck(e) { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); send(); } }
+function ck(e) { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();} }
 function ar(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,100)+'px'; }
 
 async function callClaude(userMsg, isMissed) {
   addUser(userMsg);
-  const tid = addTyping();
+  const tid=addTyping();
+  const ftp=S.ftp||estimateFTP(S.rides.filter(r=>r.completed));
+  const log=S.rides.length
+    ? S.rides.map(r=>r.completed
+        ? `${r.date}: "${r.name}" — avg ${r.avg_power||'?'}W, NP ${r.np||'?'}W, ${r.dur||'?'}min, TSS ${r.tss||'?'}, HR ${r.avg_hr||'?'}, dist ${r.dist||'?'}km`
+        : `${r.date}: "${r.name}" — MISSED${r.reason?' ('+r.reason+')':''}`
+      ).join('\n')
+    : 'No rides uploaded yet.';
 
-  const log = S.rides.map(r =>
-    r.completed
-      ? `${r.date}: "${r.name}" — avg ${r.avg_power}W, NP ${r.np}W, ${r.dur}min, TSS ${r.tss}, HR ${r.avg_hr}, dist ${r.dist}km, elev ${r.elev}m`
-      : `${r.date}: "${r.name}" — MISSED${r.reason?' (reason: '+r.reason+')':''}`
-  ).join('\n');
-
-  const sys = `You are a friendly, expert cycling coach specialising in FTP improvement through power-based training.
+  const sys=`You are a friendly, expert cycling coach specialising in FTP improvement.
 
 Athlete:
-- FTP: ${S.ftp}W | Weight: ${S.weight}kg | w/kg: ${(S.ftp/S.weight).toFixed(2)}
-- CTL (fitness): ${S.ctl} | ATL (fatigue): ${S.atl} | Form (TSB): ${S.ctl-S.atl}
-- Goal: ${S.goal||'none set'} on ${S.goalDate||'no date set'}
+- FTP: ${ftp||'unknown'}W | Weight: ${S.weight||'unknown'}kg${ftp&&S.weight?' | w/kg: '+(ftp/S.weight).toFixed(2):''}
+- CTL: ${S.ctl||'unknown'} | ATL: ${S.atl||'unknown'} | Form: ${S.ctl&&S.atl?S.ctl-S.atl:'unknown'}
+- Goal: ${S.goal||'none set'}${S.goalDate?' on '+S.goalDate:''}
 
-Ride history (most recent first):
-${log||'No rides yet.'}
+Ride history:
+${log}
 
 How to respond:
-- Be conversational and direct like a real coach, not a chatbot
-- Always give power targets in exact watts using the athlete's FTP (e.g. "158–173W" for Z2, not just "zone 2")
-- When they miss a session: acknowledge briefly, ask one follow-up question if you need more info, then give a specific adjusted plan
-- When building plans: ask about available time per day if not told, then give a day-by-day plan with exact targets
-- When they mention fatigue: suggest an easier session tomorrow with specific reduced targets
-- When they mention time constraints: ask how many minutes they have and give a condensed workout
-- When they want a group ride: incorporate it and adjust surrounding sessions for freshness
-- Keep responses concise unless they ask for detail. No markdown headers.`;
+- Be direct and conversational, like a coach texting their athlete
+- Always give power targets in exact watts based on FTP (e.g. "162–178W for Z2")
+- When they miss a session: acknowledge briefly, ask one follow-up if needed, give a specific adjusted plan
+- When building plans: ask about daily time availability if not mentioned, then give day-by-day structure
+- When they mention fatigue or illness: suggest reduced load with specific targets
+- When time-constrained: design a condensed workout that hits key adaptations
+- When they want a group ride: work it into the week and adjust surrounding sessions
+- No markdown headers. Keep it short unless they ask for detail.`;
 
   S.chatHistory.push({role:'user',content:userMsg});
-
   try {
-    const res = await fetch(CLAUDE, {
+    const res=await fetch(CLAUDE,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        system:sys,
-        messages:S.chatHistory.slice(-16),
-      }),
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sys,messages:S.chatHistory.slice(-16)})
     });
-    const data = await res.json();
+    const data=await res.json();
     removeTyping(tid);
-    if (data.content?.[0]?.text) {
-      const reply = data.content[0].text;
+    if(data.content?.[0]?.text){
+      const reply=data.content[0].text;
       S.chatHistory.push({role:'assistant',content:reply});
-      addAI(reply, isMissed
-        ? ['What about the rest of this week?','How hard should tomorrow be?']
-        : []);
+      addAI(reply,isMissed?['What about the rest of this week?','How hard should tomorrow be?']:[]);
     } else {
-      addAI('Open this app inside Claude.ai to activate the AI coach.');
+      addAI('Open this app inside Claude.ai to enable the AI coach.');
     }
   } catch {
     removeTyping(tid);
@@ -685,18 +1191,18 @@ How to respond:
 
 // ── CHAT HELPERS ──────────────────────────────────────────
 function addUser(t) {
-  const el = document.createElement('div');
+  const el=document.createElement('div');
   el.className='msg user';
-  el.innerHTML=`<div class="av me">Me</div><div class="bubble user">${esc(t)}</div>`;
+  el.innerHTML=`<div class="av me">${S.name?S.name[0].toUpperCase():'?'}</div><div class="bubble user">${esc(t)}</div>`;
   document.getElementById('chat-scroll').appendChild(el);
   scrollChat();
 }
-function addAI(t, qrs=[]) {
-  const fmt = esc(t).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>');
-  const qrh = qrs.length ? `<div class="qrs">${qrs.map(q=>`<div class="qr" onclick="sq('${q.replace(/'/g,"\\'")}' )">${q}</div>`).join('')}</div>` : '';
-  const el = document.createElement('div');
+function addAI(t,qrs=[]) {
+  const fmt=esc(t).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>');
+  const qrh=qrs.length?`<div class="qrs">${qrs.map(q=>`<div class="qr" onclick="sq('${q.replace(/'/g,"\\'")} ')">${q}</div>`).join('')}</div>`:'';
+  const el=document.createElement('div');
   el.className='msg';
-  el.innerHTML=`<div class="av ai">AI</div><div><div class="bubble ai">${fmt}</div>${qrh}</div>`;
+  el.innerHTML=`<div class="av ai">C</div><div><div class="bubble ai">${fmt}</div>${qrh}</div>`;
   document.getElementById('chat-scroll').appendChild(el);
   scrollChat();
 }
@@ -704,15 +1210,38 @@ function addTyping() {
   const id='t'+Date.now();
   const el=document.createElement('div');
   el.className='msg'; el.id=id;
-  el.innerHTML=`<div class="av ai">AI</div><div class="bubble ai"><div class="t-bub"><span></span><span></span><span></span></div></div>`;
+  el.innerHTML=`<div class="av ai">C</div><div class="bubble ai"><div class="t-bub"><span></span><span></span><span></span></div></div>`;
   document.getElementById('chat-scroll').appendChild(el);
   scrollChat(); return id;
 }
-function removeTyping(id) { document.getElementById(id)?.remove(); }
-function scrollChat() { const c=document.getElementById('chat-scroll'); c.scrollTop=c.scrollHeight; }
-function esc(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function removeTyping(id){document.getElementById(id)?.remove();}
+function scrollChat(){const c=document.getElementById('chat-scroll');c.scrollTop=c.scrollHeight;}
+function esc(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
+// ── HELPERS ───────────────────────────────────────────────
+function ftm(m) { const h=Math.floor(m/60),mn=m%60; return h?h+'h'+(mn?' '+mn+'m':''):mn+'m'; }
+function estimateFTP(rides) { return rides.length?Math.round(Math.max(...rides.map(r=>r.np||r.avg_power||0))*0.95)||220:220; }
+function calcCTL(rides) {
+  if (!rides.length) return 0;
+  let ctl=0;
+  const sorted=[...rides].sort((a,b)=>a.date.localeCompare(b.date));
+  sorted.forEach(r=>{ctl=ctl+(((r.tss||0)-ctl)/42);});
+  return Math.round(ctl);
+}
+function calcATL(rides) {
+  if (!rides.length) return 0;
+  let atl=0;
+  const sorted=[...rides].sort((a,b)=>a.date.localeCompare(b.date));
+  sorted.forEach(r=>{atl=atl+(((r.tss||0)-atl)/7);});
+  return Math.round(atl);
+}
+function clearData() {
+  if(!confirm('Clear all ride data? This cannot be undone.')) return;
+  S.rides=[]; S.ftp=null; S.weight=null; S.goal=''; S.goalDate=''; S.ctl=null; S.atl=null;
+  save(); refreshProfile(); renderDash(); renderCal(); closeDD();
+}
+
+if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
 boot();
 </script>
 </body>
