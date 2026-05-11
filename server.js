@@ -3,6 +3,7 @@
 // Receives Garmin webhooks + serves the app
 // ─────────────────────────────────────────────
 require('dotenv').config();
+const path = require('path');
 const express = require('express');
 const cors    = require('cors');
 const { createClient } = require('@supabase/supabase-js');
@@ -18,9 +19,13 @@ const supabase = createClient(
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public')); // serves your HTML app
+app.use(express.static(path.join(__dirname, 'public')));
 
 // ─── HEALTH CHECK ────────────────────────────
+// Serve the app on the root URL
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 // Visit /ping in your browser to confirm server is running
 app.get('/ping', (req, res) => {
   res.json({ status: 'ok', message: 'CycleCoach server is running' });
