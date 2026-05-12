@@ -125,13 +125,13 @@ app.post('/strava/webhook', async (req, res) => {
   }
 });
 
-app.get('/api/strava/status', async (req, res) => {
+app.get('/data/strava/status', async (req, res) => {
   const { data } = await supabase
     .from('strava_tokens').select('athlete_name, athlete_id').limit(1).single();
   res.json({ connected: !!data, athlete: data?.athlete_name || null });
 });
 
-app.post('/api/strava/sync', async (req, res) => {
+app.post('/data/strava/sync', async (req, res) => {
   try {
     const { data: tokenRow } = await supabase
       .from('strava_tokens').select('*').limit(1).single();
@@ -144,14 +144,14 @@ app.post('/api/strava/sync', async (req, res) => {
   }
 });
 
-app.get('/api/rides', async (req, res) => {
+app.get('/data/rides', async (req, res) => {
   const { data, error } = await supabase
     .from('rides').select('*').order('date', { ascending: false }).limit(100);
   if (error) return res.status(500).json({ error: error.message });
   res.json(data);
 });
 
-app.post('/api/rides/missed', async (req, res) => {
+app.post('/data/rides/missed', async (req, res) => {
   const { date, name, reason } = req.body;
   const { data, error } = await supabase
     .from('rides').insert({ name: name || 'Planned session', date, completed: false, missed_reason: reason });
@@ -159,7 +159,7 @@ app.post('/api/rides/missed', async (req, res) => {
   res.json(data);
 });
 
-app.post('/api/ftp', async (req, res) => {
+app.post('/data/ftp', async (req, res) => {
   const { ftp, date } = req.body;
   const { error } = await supabase
     .from('ftp_history').insert({ ftp, date: date || new Date().toISOString().split('T')[0] });
@@ -167,7 +167,7 @@ app.post('/api/ftp', async (req, res) => {
   res.json({ saved: true });
 });
 
-app.get('/api/ftp', async (req, res) => {
+app.get('/data/ftp', async (req, res) => {
   const { data, error } = await supabase
     .from('ftp_history').select('*').order('date', { ascending: true });
   if (error) return res.status(500).json({ error: error.message });
@@ -252,7 +252,7 @@ function stravaGet(endpoint, accessToken) {
   return new Promise((resolve, reject) => {
     const options = {
       hostname: 'www.strava.com',
-      path:     '/api/v3' + endpoint,
+      path:     '/data/v3' + endpoint,
       method:   'GET',
       headers:  { Authorization: 'Bearer ' + accessToken },
     };
